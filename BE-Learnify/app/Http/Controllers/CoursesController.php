@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Attendance;
+use App\Models\Courses;
+use Illuminate\Http\Request;
 
-class AttendanceController extends Controller
+class CoursesController extends Controller
 {
     public function index()
     {
-        $items = Attendance::all();
+        $classes = Courses::all();
 
-        return response()->json($items, 200)
+        return response()->json($classes, 200)
             ->header('Access-Control-Allow-Origin', '*')
             ->header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
             ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -18,14 +19,14 @@ class AttendanceController extends Controller
 
     public function show($id)
     {
-        $item = Attendance::find($id);
+        $class = Courses::find($id);
 
-        if (! $item) {
+        if (! $class) {
             return response()->json(['message' => 'Not found'], 404)
                 ->header('Access-Control-Allow-Origin', '*');
         }
 
-        return response()->json($item, 200)
+        return response()->json($class, 200)
             ->header('Access-Control-Allow-Origin', '*');
     }
 }

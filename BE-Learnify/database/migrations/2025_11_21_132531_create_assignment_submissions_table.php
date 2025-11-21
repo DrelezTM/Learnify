@@ -11,11 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendances', function (Blueprint $table) {
+        Schema::create('assignment_submissions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('assignment_id')->constrained('assignments', 'id')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users', 'id')->onDelete('cascade');
-            $table->enum('status', ['present', 'absent', 'late', 'excused'])->default('absent');
-            $table->time('check_in')->nullable();
+            $table->string('file_path');
+            $table->timestamp('submitted_at');
+            $table->bigInteger('grade');
+            $table->text('feedback');
             $table->timestamps();
         });
     }
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attendances');
+        Schema::dropIfExists('assignment_submissions');
     }
 };
