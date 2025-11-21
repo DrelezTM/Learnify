@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Courses;
+use App\Models\Course;
 use Illuminate\Http\Request;
 
 class CoursesController extends Controller
 {
     public function index()
     {
-        $classes = Courses::all();
+        $classes = Course::all();
 
         return response()->json($classes, 200)
             ->header('Access-Control-Allow-Origin', '*')
@@ -19,7 +19,7 @@ class CoursesController extends Controller
 
     public function show($id)
     {
-        $class = Courses::find($id);
+        $class = Course::find($id);
 
         if (! $class) {
             return response()->json(['message' => 'Not found'], 404)
