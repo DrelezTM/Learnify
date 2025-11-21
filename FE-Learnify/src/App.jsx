@@ -1,15 +1,14 @@
 import './App.css'
+import Dashboard from './components/Dashboard'
 import Sidebar from './components/Sidebar'
 
 function App() {
-  
 
   return (
-    <>
+    <div className="flex h-screen">
       <Sidebar />
-
-     
-    </>
+      <Dashboard />
+    </div>
   )
 }
 
