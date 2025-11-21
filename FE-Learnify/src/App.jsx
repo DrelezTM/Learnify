@@ -1,15 +1,14 @@
-import './App.css'
-import Dashboard from './components/Dashboard'
-import Sidebar from './components/Sidebar'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ListKelasPage from "./pages/ListKelasPage";
 
 function App() {
-
   return (
-    <div className="flex h-screen">
-      <Sidebar />
-      <Dashboard />
-    </div>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/list-kelas" element={<ListKelasPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;

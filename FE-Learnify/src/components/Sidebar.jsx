@@ -8,18 +8,18 @@ export default function Sidebar() {
   const [activeSubmenu, setActiveSubmenu] = useState('');
 
   const menuItems = [
-    { 
-      name: 'Dashboard', 
-      icon: Home, 
+    {
+      name: 'Dashboard',
+      icon: Home,
       href: '#dashboard',
       submenu: [
-        { name: 'List Kelas', href: '#list-kelas' },
+        { name: 'List Kelas', href: '/list-kelas' },
         { name: 'Timeline', href: '#timeline' }
       ]
     },
-    { 
-      name: 'Absensi Per-Matkul', 
-      icon: ClipboardCheck, 
+    {
+      name: 'Absensi Per-Matkul',
+      icon: ClipboardCheck,
       href: '#absensi',
       submenu: [
         { name: 'Attendance', href: '#attendance' },
@@ -28,18 +28,18 @@ export default function Sidebar() {
         { name: 'Minimal Attendance', href: '#minimal-attendance' }
       ]
     },
-    { 
-      name: 'Schedule', 
-      icon: Calendar, 
+    {
+      name: 'Schedule',
+      icon: Calendar,
       href: '#schedule',
       submenu: [
         { name: 'Schedule', href: '#schedule-list' },
         { name: 'Calendar', href: '#calendar' }
       ]
     },
-    { 
-      name: 'Forum', 
-      icon: MessageCircle, 
+    {
+      name: 'Forum',
+      icon: MessageCircle,
       href: '#forum',
     }
   ];
@@ -127,7 +127,7 @@ export default function Sidebar() {
           {menuItems.map((item) => {
             const isActive = activeMenu === item.name;
             const Icon = item.icon;
-            
+
             return (
               <div key={item.name}>
                 <a
@@ -137,38 +137,35 @@ export default function Sidebar() {
                     handleMenuClick(item.name, !!item.submenu);
                   }}
                   className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 cursor-pointer group relative overflow-hidden
-                    ${isActive 
-                      ? 'bg-white text-blue-700 shadow-lg scale-105' 
+                    ${isActive
+                      ? 'bg-white text-blue-700 shadow-lg scale-105'
                       : 'text-white hover:bg-white/20 hover:scale-105'
                     }`}
                 >
                   {isActive && (
                     <div className="absolute left-0 top-0 w-1 h-full bg-blue-600 rounded-r-full"></div>
                   )}
-                  
+
                   <div className="flex items-center space-x-3 flex-1 min-w-0 relative z-10">
-                    <Icon 
-                      size={20} 
-                      className={`group-hover:scale-110 transition-transform duration-200 flex-shrink-0 ${
-                        isActive ? 'text-blue-600' : ''
-                      }`} 
+                    <Icon
+                      size={20}
+                      className={`group-hover:scale-110 transition-transform duration-200 flex-shrink-0 ${isActive ? 'text-blue-600' : ''
+                        }`}
                     />
                     {isSidebarOpen && (
-                      <span className={`font-semibold text-sm truncate ${
-                        isActive ? 'text-blue-700' : ''
-                      }`}>
+                      <span className={`font-semibold text-sm truncate ${isActive ? 'text-blue-700' : ''
+                        }`}>
                         {item.name}
                       </span>
                     )}
                   </div>
-                  
+
                   <div className="flex items-center space-x-2 flex-shrink-0 ml-2 relative z-10">
                     {isSidebarOpen && item.submenu && (
-                      <ChevronDown 
-                        size={16} 
-                        className={`transition-transform duration-200 ${
-                          openDropdown === item.name ? 'rotate-180' : ''
-                        } ${isActive ? 'text-blue-600' : ''}`}
+                      <ChevronDown
+                        size={16}
+                        className={`transition-transform duration-200 ${openDropdown === item.name ? 'rotate-180' : ''
+                          } ${isActive ? 'text-blue-600' : ''}`}
                       />
                     )}
                   </div>
@@ -178,7 +175,7 @@ export default function Sidebar() {
                   <div className="ml-4 mt-2 space-y-1 mb-2 border-l-2 border-white/20 pl-4 submenu-enter">
                     {item.submenu.map((subitem) => {
                       const isSubmenuActive = activeSubmenu === subitem.name;
-                      
+
                       return (
                         <a
                           key={subitem.name}
@@ -188,8 +185,8 @@ export default function Sidebar() {
                             handleSubmenuClick(subitem.name);
                           }}
                           className={`block px-4 py-2.5 text-sm rounded-lg transition-all duration-200 relative overflow-hidden
-                            ${isSubmenuActive 
-                              ? 'bg-white text-blue-700 font-semibold shadow-md scale-105' 
+                            ${isSubmenuActive
+                              ? 'bg-white text-blue-700 font-semibold shadow-md scale-105'
                               : 'text-blue-100 hover:text-white hover:bg-white/20 hover:scale-105'
                             }`}
                         >
@@ -233,9 +230,9 @@ export default function Sidebar() {
         </div>
       </div>
 
-    
 
-        
+
+
     </div>
   );
 }
