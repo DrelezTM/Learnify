@@ -1,9 +1,11 @@
 import { Button } from "./ui/button";
+import Card from '../components/Card'
 
 export default function Dashboard() {
     return (
         <div className="flex-1 flex flex-col bg-gray-100">
             <Header />
+            <Card />
         </div>
     );
 }
