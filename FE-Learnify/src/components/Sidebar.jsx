@@ -112,7 +112,7 @@ export default function Sidebar() {
               <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-lg">
                 <span className="text-blue-600 font-bold text-lg">L</span>
               </div>
-              <h1 className="text-2xl font-bold text-white">Learnifly</h1>
+              <h1 className="text-2xl font-bold text-white">Learnify</h1>
             </div>
           )}
           <button
