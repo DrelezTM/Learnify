@@ -10,7 +10,11 @@ class AttendanceRecordController extends Controller
     {
         $items = Attendance_Record::all();
 
-        return response()->json($items, 200)
+        return response()->json([
+            'success' => true,
+            'message' => 'Attendance records retrieved successfully',
+            'data' => $items
+        ], 200)
             ->header('Access-Control-Allow-Origin', '*')
             ->header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
             ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -21,11 +25,19 @@ class AttendanceRecordController extends Controller
         $item = Attendance_Record::find($id);
 
         if (! $item) {
-            return response()->json(['message' => 'Not found'], 404)
+            return response()->json([
+                'success' => false,
+                'message' => 'Attendance record not found',
+                'data' => null
+            ], 404)
                 ->header('Access-Control-Allow-Origin', '*');
         }
 
-        return response()->json($item, 200)
+        return response()->json([
+            'success' => true,
+            'message' => 'Attendance record retrieved successfully',
+            'data' => $item
+        ], 200)
             ->header('Access-Control-Allow-Origin', '*');
     }
 }

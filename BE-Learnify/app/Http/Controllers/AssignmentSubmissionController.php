@@ -10,7 +10,11 @@ class AssignmentSubmissionController extends Controller
     {
         $items = Assignment_Submission::all();
 
-        return response()->json($items, 200)
+        return response()->json([
+            'success' => true,
+            'message' => 'Assignment submissions retrieved successfully',
+            'data' => []
+        ], 200)
             ->header('Access-Control-Allow-Origin', '*')
             ->header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
             ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -21,11 +25,19 @@ class AssignmentSubmissionController extends Controller
         $item = Assignment_Submission::find($id);
 
         if (! $item) {
-            return response()->json(['message' => 'Not found'], 404)
+            return response()->json([
+                'success' => false,
+                'message' => 'Assignment submission not found',
+                'data' => null
+            ], 404)
                 ->header('Access-Control-Allow-Origin', '*');
         }
 
-        return response()->json($item, 200)
+        return response()->json([
+            'success' => true,
+            'message' => 'Assignment submission retrieved successfully',
+            'data' => $item
+        ], 200)
             ->header('Access-Control-Allow-Origin', '*');
     }
 }

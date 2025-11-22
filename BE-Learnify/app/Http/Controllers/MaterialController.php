@@ -8,9 +8,13 @@ class MaterialController extends Controller
 {
     public function index()
     {
-        $items = Material::all();
+        $materials = Material::all();
 
-        return response()->json($items, 200)
+        return response()->json([
+            'success' => true,
+            'message' => 'Materials retrieved successfully',
+            'data' => $materials
+        ], 200)
             ->header('Access-Control-Allow-Origin', '*')
             ->header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
             ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -18,14 +22,22 @@ class MaterialController extends Controller
 
     public function show($id)
     {
-        $item = Material::find($id);
+        $material = Material::find($id);
 
-        if (! $item) {
-            return response()->json(['message' => 'Not found'], 404)
+        if (! $material) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Material not found',
+                'data' => null
+            ], 404)
                 ->header('Access-Control-Allow-Origin', '*');
         }
 
-        return response()->json($item, 200)
+        return response()->json([
+            'success' => true,
+            'message' => 'Material retrieved successfully',
+            'data' => $material
+        ], 200)
             ->header('Access-Control-Allow-Origin', '*');
     }
 }

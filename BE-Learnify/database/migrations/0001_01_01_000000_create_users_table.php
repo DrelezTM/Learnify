@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    
     /**
      * Run the migrations.
      */
@@ -17,8 +18,10 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->enum('role', ['admin', 'dosen', 'mahasiswa']);
-            $table->string('jurusan');
-            $table->string('prodi');
+            $table->string('major');
+            $table->string('study_program');
+            $table->string('class');
+            $table->string('batch');
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
