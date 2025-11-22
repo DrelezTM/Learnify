@@ -20,10 +20,7 @@ class CoursesController extends Controller
             'success' => true,
             'message' => 'List of courses retrieved successfully',
             'data' => $classes
-        ], 200)
-            ->header('Access-Control-Allow-Origin', '*')
-            ->header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
-            ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        ], 200);
     }
 
     public function show($id)
@@ -35,16 +32,14 @@ class CoursesController extends Controller
                 'success' => false,
                 'message' => 'Course not found',
                 'data' => null
-            ], 404)
-                ->header('Access-Control-Allow-Origin', '*');
+            ], 404);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Course details retrieved successfully',
             'data' => $class
-        ], 200)
-            ->header('Access-Control-Allow-Origin', '*');
+        ], 200);
     }
 
     public function store(Request $request) {

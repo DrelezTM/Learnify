@@ -17,10 +17,7 @@ class UserController extends Controller
             'success' => true,
             'message' => 'Users retrieved successfully',
             'data' => $users
-        ], 200)
-            ->header('Access-Control-Allow-Origin', '*')
-            ->header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
-            ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        ], 200);
     }
 
     public function show($id)
@@ -32,16 +29,14 @@ class UserController extends Controller
                 'success' => false,
                 'message' => 'User not found',
                 'data' => null
-            ], 404)
-                ->header('Access-Control-Allow-Origin', '*');
+            ], 404);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'User retrieved successfully',
             'data' => $user
-        ], 200)
-            ->header('Access-Control-Allow-Origin', '*');
+        ], 200);
     }
 
     public function store(Request $request) {

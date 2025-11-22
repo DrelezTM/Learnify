@@ -14,10 +14,7 @@ class MaterialController extends Controller
             'success' => true,
             'message' => 'Materials retrieved successfully',
             'data' => $materials
-        ], 200)
-            ->header('Access-Control-Allow-Origin', '*')
-            ->header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
-            ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        ], 200);
     }
 
     public function show($id)
@@ -29,15 +26,13 @@ class MaterialController extends Controller
                 'success' => false,
                 'message' => 'Material not found',
                 'data' => null
-            ], 404)
-                ->header('Access-Control-Allow-Origin', '*');
+            ], 404);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Material retrieved successfully',
             'data' => $material
-        ], 200)
-            ->header('Access-Control-Allow-Origin', '*');
+        ], 200);
     }
 }

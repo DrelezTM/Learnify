@@ -14,10 +14,7 @@ class AssignmentController extends Controller
             'success' => true,
             'message' => 'Assignments retrieved successfully',
             'data' => $items
-        ], 200)
-            ->header('Access-Control-Allow-Origin', '*')
-            ->header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
-            ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        ], 200);
     }
 
     public function show($id)
@@ -29,15 +26,13 @@ class AssignmentController extends Controller
                 'success' => false,
                 'message' => 'Assignment not found',
                 'data' => null
-            ], 404)
-                ->header('Access-Control-Allow-Origin', '*');
+            ], 404);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Assignment retrieved successfully',
             'data' => $item
-        ], 200)
-            ->header('Access-Control-Allow-Origin', '*');
+        ], 200);
     }
 }
