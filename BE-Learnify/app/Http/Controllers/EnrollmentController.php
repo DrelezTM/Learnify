@@ -10,11 +10,7 @@ class EnrollmentController extends Controller
     public function index()
     {
         $enrollments = Enrollment::all();
-
-        return response()->json($enrollments, 200)
-            ->header('Access-Control-Allow-Origin', '*')
-            ->header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
-            ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        return response()->json($enrollments, 200);
     }
 
     public function show($id)
@@ -22,11 +18,9 @@ class EnrollmentController extends Controller
         $enrollments = Enrollment::find($id);
 
         if (! $enrollments) {
-            return response()->json(['message' => 'Not found'], 404)
-                ->header('Access-Control-Allow-Origin', '*');
+            return response()->json(['message' => 'Not found'], 404);
         }
 
-        return response()->json($enrollments, 200)
-            ->header('Access-Control-Allow-Origin', '*');
+        return response()->json($enrollments, 200);
     }
 }

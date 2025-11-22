@@ -8,24 +8,19 @@ class AssignmentController extends Controller
 {
     public function index()
     {
-        $items = Assignment::all();
+        $assignments = Assignment::all();
 
-        return response()->json($items, 200)
-            ->header('Access-Control-Allow-Origin', '*')
-            ->header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
-            ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        return response()->json($assignments, 200);
     }
 
     public function show($id)
     {
-        $item = Assignment::find($id);
+        $assignments = Assignment::find($id);
 
-        if (! $item) {
-            return response()->json(['message' => 'Not found'], 404)
-                ->header('Access-Control-Allow-Origin', '*');
+        if (! $assignments) {
+            return response()->json(['message' => 'Not found'], 404);
         }
 
-        return response()->json($item, 200)
-            ->header('Access-Control-Allow-Origin', '*');
+        return response()->json($assignments, 200);
     }
 }
