@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('weeks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('course_Id')->constrained('courses', 'id')->onDelete('cascade');
+            $table->foreignId('course_id')->constrained('courses', 'id')->onDelete('cascade');
             $table->bigInteger('week_number');
             $table->string('title');
             $table->text('description');
