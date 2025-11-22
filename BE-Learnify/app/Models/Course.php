@@ -13,5 +13,6 @@ class Course extends Model
         'code',
         'enrollment_key',
         'lecturer_id',
+        'slug',
     ];
 }

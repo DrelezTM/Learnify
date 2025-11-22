@@ -8,18 +8,31 @@ class MaterialController extends Controller
 {
     public function index()
     {
-        $items = Material::all();
-        return response()->json($items, 200);
+        $materials = Material::all();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Materials retrieved successfully',
+            'data' => $materials
+        ], 200);
     }
 
     public function show($id)
     {
-        $item = Material::find($id);
+        $material = Material::find($id);
 
-        if (! $item) {
-            return response()->json(['message' => 'Not found'], 404);
+        if (! $material) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Material not found',
+                'data' => null
+            ], 404);
         }
 
-        return response()->json($item, 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Material retrieved successfully',
+            'data' => $material
+        ], 200);
     }
 }

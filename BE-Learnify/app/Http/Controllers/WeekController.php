@@ -8,18 +8,31 @@ class WeekController extends Controller
 {
     public function index()
     {
-        $items = Week::all();
-        return response()->json($items, 200);
+        $weeks = Week::all();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Weeks retrieved successfully',
+            'data' => $weeks
+        ], 200);
     }
 
     public function show($id)
     {
-        $item = Week::find($id);
+        $week = Week::find($id);
 
-        if (! $item) {
-            return response()->json(['message' => 'Not found'], 404);
+        if (! $week) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Week not found',
+                'data' => null
+            ], 404);
         }
 
-        return response()->json($item, 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Week retrieved successfully',
+            'data' => $week
+        ], 200);
     }
 }

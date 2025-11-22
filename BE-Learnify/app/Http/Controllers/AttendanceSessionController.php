@@ -9,7 +9,12 @@ class AttendanceSessionController extends Controller
     public function index()
     {
         $items = Attendance_Session::all();
-        return response()->json($items, 200);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Attendance sessions retrieved successfully',
+            'data' => $items
+        ], 200);
     }
 
     public function show($id)
@@ -17,9 +22,17 @@ class AttendanceSessionController extends Controller
         $item = Attendance_Session::find($id);
 
         if (! $item) {
-            return response()->json(['message' => 'Not found'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Attendance session not found',
+                'data' => null
+            ], 404);
         }
 
-        return response()->json($item, 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Attendance session retrieved successfully',
+            'data' => $item
+        ], 200);
     }
 }

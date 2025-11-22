@@ -10,7 +10,11 @@ class AssignmentController extends Controller
     {
         $assignments = Assignment::all();
 
-        return response()->json($assignments, 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Assignments retrieved successfully',
+            'data' => $assignments
+        ], 200);
     }
 
     public function show($id)
@@ -18,9 +22,17 @@ class AssignmentController extends Controller
         $assignments = Assignment::find($id);
 
         if (! $assignments) {
-            return response()->json(['message' => 'Not found'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Assignment not found',
+                'data' => null
+            ], 404);
         }
 
-        return response()->json($assignments, 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Assignment retrieved successfully',
+            'data' => $assignments
+        ], 200);
     }
 }
