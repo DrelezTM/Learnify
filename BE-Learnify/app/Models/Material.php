@@ -6,5 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Material extends Model
 {
-    //
+    protected $fillable = [
+        'id',
+        'week_id',
+        'title',
+        'file_path',
+        'content_type',
+    ];
 }
