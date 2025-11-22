@@ -18,7 +18,6 @@ Route::get('/', function () {
 Route::get('/api/classes', [CoursesController::class, 'index']);
 Route::get('/api/classes/{id}', [CoursesController::class, 'show']);
 
-// Additional API routes generated from migrations
 Route::get('/api/courses', [CourseController::class, 'index']);
 Route::get('/api/courses/{id}', [CourseController::class, 'show']);
 
