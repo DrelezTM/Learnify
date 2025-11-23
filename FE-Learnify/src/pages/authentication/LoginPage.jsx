@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Mail, Lock, BookOpen } from "lucide-react";
+import { fetchLogin } from "@/lib/api";
 
 function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleLogin = () => {
-        console.log("Login clicked", { email, password });
+    const handleLogin = async (e) => {
+        console.log('Login')
     };
 
     const handleCreateAccount = () => {

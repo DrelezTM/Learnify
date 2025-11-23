@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -39,7 +40,7 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function store(Request $request) {
+    public function register(Request $request) {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|unique:users,email',
@@ -88,5 +89,52 @@ class UserController extends Controller
                 'token' => $token
             ]
         ], 201);
+    }
+
+    public function login(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required',
+            'password' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $validate = $validator->validate();
+
+        $checkUser = User::where('email', $validate['email'])->first();
+        if (!$checkUser || !Hash::check($validate['password'], $checkUser->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User does not exist',
+                'data' => null
+            ], 404);
+        }
+
+        $token = $checkUser->createToken('AuthToken')->plainTextToken;
+        return response()->json([
+            'success' => true,
+            'message' => 'User successfully logged in',
+            'data' => [
+                'user' => $checkUser,
+                'token' => $token
+            ]
+        ], 200);
+    }
+
+    public function logout(Request $request) {
+        Auth::guard('web')->logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User successfully logged out',
+        ], 200);
     }
 }
