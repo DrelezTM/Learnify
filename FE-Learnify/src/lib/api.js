@@ -21,6 +21,16 @@ export async function fetchLogin(email, password) {
   }
 }
 
+export async function fetchLogout() {
+  try {
+    const { data } = await baseAxios.delete(`/logout`);
+    return data;
+  } catch (error) {
+    console.error('Failed to logout:', error);
+    throw error;
+  }
+}
+
 // export async function fetchLogin(email, password) {
 //   axios({
 //     url: `${API_BASE}/api/login`,

@@ -17,8 +17,8 @@ function LoginPage() {
         try {
             const data = await fetchLogin(email, password);
 
-            if (data?.data.token) {
-                document.cookie = `token=${data.token}; path=/; max-age=${60 * 60 * 24 * 7}`;
+            if (data.data.token) {
+                document.cookie = `token=${data.data.token}; path=/; max-age=${60 * 60 * 24 * 7}`;
                 navigate('/courses');
             }
         } catch (error) {

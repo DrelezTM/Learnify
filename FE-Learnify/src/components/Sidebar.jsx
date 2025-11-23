@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Home, Menu, X, ChevronDown, ClipboardCheck, Calendar, MessageCircle, LogOut, Settings } from 'lucide-react';
+import { fetchLogout } from '@/lib/api';
+import { useNavigate } from 'react-router-dom';
 
 export default function Sidebar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -7,6 +9,7 @@ export default function Sidebar() {
   const [activeMenu, setActiveMenu] = useState('Dashboard');
   const [activeSubmenu, setActiveSubmenu] = useState('');
 
+  const navigate = useNavigate()
   const menuItems = [
     {
       name: 'Dashboard',
@@ -58,6 +61,22 @@ export default function Sidebar() {
     setActiveSubmenu(submenuName);
   };
 
+  const handleLogout = async () => {
+    if (typeof window === 'undefined') return null;
+
+    try {
+      await fetchLogout();
+
+      // remove token from cookie
+      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+
+      navigate("/login")
+
+    } catch (error) {
+      console.error('Failed logout', error);
+    }
+  };
+
   return (
     <>
       <style>{`
@@ -91,9 +110,8 @@ export default function Sidebar() {
       `}</style>
 
       <div
-        className={`${
-          isSidebarOpen ? 'w-64' : 'w-20'
-        } h-screen fixed top-0 left-0 z-50 
+        className={`${isSidebarOpen ? 'w-64' : 'w-20'
+          } h-screen fixed top-0 left-0 z-50 
         bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 
         transition-all duration-300 ease-in-out shadow-2xl 
         flex flex-col overflow-y-auto
@@ -155,9 +173,8 @@ export default function Sidebar() {
                   {isSidebarOpen && item.submenu && (
                     <ChevronDown
                       size={16}
-                      className={`transition-transform duration-300 ease-out ${
-                        isOpen ? 'rotate-180' : ''
-                      }`}
+                      className={`transition-transform duration-300 ease-out ${isOpen ? 'rotate-180' : ''
+                        }`}
                     />
                   )}
                 </a>
@@ -184,7 +201,7 @@ export default function Sidebar() {
                               ? 'bg-white text-blue-700 font-semibold'
                               : 'text-blue-100 hover:text-white'
                             }`}
-                          style={{ 
+                          style={{
                             animationDelay: `${index * 80}ms`,
                           }}
                         >
@@ -207,7 +224,7 @@ export default function Sidebar() {
             <Settings size={20} />
             {isSidebarOpen && <span>Settings</span>}
           </button>
-          <button className="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-red-500/30 rounded-xl
+          <button onClick={handleLogout} className="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-red-500/30 rounded-xl
             transition-all duration-300 ease-out
             hover:translate-x-1.5 hover:scale-105
             active:translate-x-1 active:scale-95">
