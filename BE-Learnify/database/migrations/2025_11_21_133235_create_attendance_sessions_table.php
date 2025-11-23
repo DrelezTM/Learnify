@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('course_id')->constrained('courses', 'id')->onDelete('cascade');
             $table->foreignId('week_id')->constrained('weeks', 'id')->onDelete('cascade');
             $table->string('title');
-            $table->timestamp('start_time');
-            $table->timestamp('end_time');
+            $table->timestamp('start_time')->nullable();
+            $table->timestamp('end_time')->nullable();
             $table->timestamps();
         });
     }

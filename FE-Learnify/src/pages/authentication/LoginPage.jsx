@@ -1,13 +1,32 @@
 import { useState } from "react";
 import { Mail, Lock, BookOpen } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { fetchLogin } from "@/lib/api";
 
 function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
+    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
-        console.log('Login')
+        e.preventDefault();
+        setIsLoading(true);
+
+        try {
+            const data = await fetchLogin(email, password);
+
+            if (data?.data.token) {
+                document.cookie = `token=${data.token}; path=/; max-age=${60 * 60 * 24 * 7}`;
+                navigate('/courses');
+            }
+        } catch (error) {
+            setIsLoading(false);
+            console.error(error.response.data.message);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleCreateAccount = () => {
@@ -56,7 +75,8 @@ function LoginPage() {
 
                     <button
                         onClick={handleLogin}
-                        className="w-full py-3.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-200"
+                        disabled={isLoading}
+                        className={`w-full py-3.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-200 ${isLoading ? "opacity-80" : "opacity-100"}`}
                     >
                         Masuk
                     </button>

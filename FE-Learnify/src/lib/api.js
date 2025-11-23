@@ -1,10 +1,24 @@
-import axios from "axios";
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+import { baseAxios } from "./baseAxios";
+
 
 export async function fetchCourses() {
-  const res = await fetch(`${API_BASE}/api/courses`);
-  if (!res.ok) throw new Error(`API error: ${res.status}`);
-  return res.json();
+  try {
+    const { data } = await baseAxios.get(`/courses`, { email, password });
+    return data;
+  } catch (error) {
+    console.error('Failed to login:', error);
+    throw error;
+  }
+}
+
+export async function fetchLogin(email, password) {
+  try {
+    const { data } = await baseAxios.post(`/login`, { email, password });
+    return data;
+  } catch (error) {
+    console.error('Failed to login:', error);
+    throw error;
+  }
 }
 
 // export async function fetchLogin(email, password) {
