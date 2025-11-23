@@ -14,7 +14,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::post('/api/users', [ UserController::class, 'store' ]);
+Route::post('/api/login', [ UserController::class, 'login' ]);
+Route::post('/api/register', [ UserController::class, 'register' ]);
+Route::delete('/api/logout', [ UserController::class, 'logout' ])->middleware('auth:sanctum');
 
 Route::prefix('api')->group(function() {
     Route::resource('/courses', CoursesController::class)

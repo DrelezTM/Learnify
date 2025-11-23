@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
+import { fetchCourses } from "../lib/api";
 
 export default function Dashboard() {
     const [classes, setClasses] = useState([]);
@@ -8,7 +9,7 @@ export default function Dashboard() {
 
     useEffect(() => {
         let mounted = true;
-        fetchClasses()
+        fetchCourses()
             .then((data) => {
                 if (mounted) setClasses(data);
             })

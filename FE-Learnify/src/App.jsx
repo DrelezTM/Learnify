@@ -10,10 +10,8 @@ function App() {
       <Routes>
         {/* authentication */}
         <Route path="/login" element={<LoginPage />} />
-
-        <Route path="/list-kelas" element={<ListKelasPage />} />
-
-            <Route path="/detail/:kelasId" element={<Detail />} />
+        <Route path="/courses" element={<ListKelasPage />} />
+        <Route path="/courses/:kelasId" element={<Detail />} />
       </Routes>
     </BrowserRouter>
   );
