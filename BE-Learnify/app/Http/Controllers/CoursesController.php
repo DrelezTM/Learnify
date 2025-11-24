@@ -30,7 +30,7 @@ class CoursesController extends Controller
 
     public function show(Request $request, $id)
     {
-        $class = Course::find($id);
+        $class = Course::with('weeks')->find($id);
 
         if (! $class) {
             return response()->json([
@@ -147,7 +147,7 @@ class CoursesController extends Controller
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
         ], 403);
-        
+
         $course = Course::find($id);
 
         if (!$course) {
