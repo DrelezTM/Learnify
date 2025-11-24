@@ -1,64 +1,96 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Home, Menu, X, ChevronDown, ClipboardCheck, Calendar, MessageCircle, LogOut, Settings } from 'lucide-react';
 import { fetchLogout } from '@/lib/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Sidebar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [activeMenu, setActiveMenu] = useState('Dashboard');
+  const [activeMenu, setActiveMenu] = useState('');
   const [activeSubmenu, setActiveSubmenu] = useState('');
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const menuItems = [
     {
       name: 'Dashboard',
       icon: Home,
-      href: '#dashboard',
-      submenu: [
-        { name: 'List Kelas', href: '/list-kelas' },
-        { name: 'Timeline', href: '#timeline' }
-      ]
+      href: '/courses',
     },
     {
       name: 'Absensi Per-Matkul',
       icon: ClipboardCheck,
-      href: '#absensi',
-      submenu: [
-        { name: 'Attendance', href: '#attendance' },
-        { name: 'Total Session', href: '#total-session' },
-        { name: 'Total Attendance', href: '#total-attendance' },
-        { name: 'Minimal Attendance', href: '#minimal-attendance' }
-      ]
+      href: '/attendance',
     },
     {
       name: 'Schedule',
       icon: Calendar,
-      href: '#schedule',
+      href: '/schedule', 
       submenu: [
-        { name: 'Schedule', href: '#schedule-list' },
-        { name: 'Calendar', href: '#calendar' }
+        { name: 'Schedule List', href: '/schedule/list' },
+        { name: 'Calendar View', href: '/schedule/calendar' }
       ]
     },
     {
       name: 'Forum',
       icon: MessageCircle,
-      href: '#forum',
-    }
+      href: '/forum',
+    },
   ];
+
+  // --- Efek untuk Mengatur Menu Aktif berdasarkan URL ---
+  useEffect(() => {
+    const currentPath = location.pathname;
+
+    const activeItem = menuItems.find(item => {
+      if (item.href === currentPath) return true;
+
+      if (item.submenu && currentPath.startsWith(item.href)) {
+        return true;
+      }
+      return false;
+    });
+
+    if (activeItem) {
+      setActiveMenu(activeItem.name);
+
+      if (activeItem.submenu) {
+        const activeSub = activeItem.submenu.find(sub => sub.href === currentPath);
+        if (activeSub) {
+          setActiveSubmenu(activeSub.name);
+          setOpenDropdown(activeItem.name); 
+        } else {
+          setActiveSubmenu('');
+        }
+      } else {
+        setOpenDropdown(null);
+        setActiveSubmenu('');
+      }
+    }
+  }, [location.pathname]);
 
   const toggleDropdown = (itemName) => {
     setOpenDropdown(openDropdown === itemName ? null : itemName);
   };
 
-  const handleMenuClick = (itemName, hasSubmenu) => {
-    setActiveMenu(itemName);
-    if (!hasSubmenu) setActiveSubmenu('');
-    if (hasSubmenu) toggleDropdown(itemName);
+  const handleMenuClick = (item) => {
+    const { name, href, submenu } = item;
+
+    setActiveMenu(name);
+
+    if (!submenu) {
+      navigate(href);
+      setOpenDropdown(null);
+      setActiveSubmenu('');
+    } else {
+      toggleDropdown(name);
+    }
   };
 
-  const handleSubmenuClick = (submenuName) => {
-    setActiveSubmenu(submenuName);
+  const handleSubmenuClick = (sub) => {
+    setActiveSubmenu(sub.name);
+    navigate(sub.href); 
   };
 
   const handleLogout = async () => {
@@ -80,47 +112,47 @@ export default function Sidebar() {
   return (
     <>
       <style>{`
-        @keyframes menuActivate {
-          0% { transform: scale(0.95); }
-          50% { transform: scale(1.08); }
-          100% { transform: scale(1.05); }
-        }
-        
-        @keyframes submenuSlideIn {
-          0% {
-            opacity: 0;
-            transform: translateX(-20px) scale(0.9);
-          }
-          60% {
-            transform: translateX(4px) scale(1.02);
-          }
-          100% {
-            opacity: 1;
-            transform: translateX(0) scale(1);
-          }
-        }
-        
-        .menu-activate {
-          animation: menuActivate 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        
-        .submenu-slide-in {
-          animation: submenuSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-      `}</style>
+                @keyframes menuActivate {
+                    0% { transform: scale(0.95); }
+                    50% { transform: scale(1.08); }
+                    100% { transform: scale(1.05); }
+                }
+                
+                @keyframes submenuSlideIn {
+                    0% {
+                        opacity: 0;
+                        transform: translateX(-20px) scale(0.9);
+                    }
+                    60% {
+                        transform: translateX(4px) scale(1.02);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: translateX(0) scale(1);
+                    }
+                }
+                
+                .menu-activate {
+                    animation: menuActivate 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+                }
+                
+                .submenu-slide-in {
+                    animation: submenuSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+                }
+            `}</style>
 
       <div
         className={`${isSidebarOpen ? 'w-64' : 'w-20'
           } h-screen fixed top-0 left-0 z-50 
-        bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 
-        transition-all duration-300 ease-in-out shadow-2xl 
-        flex flex-col overflow-y-auto
-        [&::-webkit-scrollbar]:w-1.5
-        [&::-webkit-scrollbar-track]:bg-white/5
-        [&::-webkit-scrollbar-track]:rounded-full
-        [&::-webkit-scrollbar-thumb]:bg-white/30
-        [&::-webkit-scrollbar-thumb]:rounded-full
-        [&::-webkit-scrollbar-thumb]:hover:bg-white/50`}
+                bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 
+                transition-all duration-300 ease-in-out shadow-2xl 
+                flex flex-col overflow-y-auto
+                [&::-webkit-scrollbar]:w-1.5
+                [&::-webkit-scrollbar-track]:bg-white/5
+                [&::-webkit-scrollbar-track]:rounded-full
+                [&::-webkit-scrollbar-thumb]:bg-white/30
+                [&::-webkit-scrollbar-thumb]:rounded-full
+                [&::-webkit-scrollbar-thumb]:hover:bg-white/50`}
       >
         <div className="flex items-center justify-between p-5 relative z-10">
           {isSidebarOpen && (
@@ -134,9 +166,9 @@ export default function Sidebar() {
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="text-white hover:bg-white/20 p-2 rounded-lg 
-            transition-all duration-300
-            hover:rotate-90 hover:scale-110
-            active:rotate-90 active:scale-95"
+                        transition-all duration-300
+                        hover:rotate-90 hover:scale-110
+                        active:rotate-90 active:scale-95"
           >
             {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -149,18 +181,22 @@ export default function Sidebar() {
             const isOpen = openDropdown === item.name;
 
             return (
-              <div key={item.name}>
+              <div key={item.name} onClick={(e) => {
+                e.preventDefault();
+                handleMenuClick(item); 
+              }}
+              >
                 <a
                   href={item.href}
                   onClick={(e) => {
                     e.preventDefault();
-                    handleMenuClick(item.name, !!item.submenu);
+                    handleMenuClick(item);
                   }}
                   className={`flex items-center justify-between px-4 py-3.5 rounded-xl cursor-pointer
-                    transition-all duration-300 ease-out
-                    hover:translate-x-1.5 hover:scale-105
-                    active:translate-x-1 active:scale-95
-                    ${isActive
+                                        transition-all duration-300 ease-out
+                                        hover:translate-x-1.5 hover:scale-105
+                                        active:translate-x-1 active:scale-95
+                                        ${isActive
                       ? 'bg-white text-blue-700 shadow-lg scale-105 menu-activate'
                       : 'text-white hover:bg-white/20'
                     }`}
@@ -190,14 +226,14 @@ export default function Sidebar() {
                           href={sub.href}
                           onClick={(e) => {
                             e.preventDefault();
-                            handleSubmenuClick(sub.name);
+                            handleSubmenuClick(sub);
                           }}
                           className={`block px-4 py-2 text-sm rounded-lg
-                            transition-all duration-300 ease-out
-                            hover:translate-x-1.5 hover:!bg-white/20
-                            active:translate-x-1 active:scale-95
-                            opacity-0 -translate-x-5 submenu-slide-in
-                            ${activeSub
+                                                        transition-all duration-300 ease-out
+                                                        hover:translate-x-1.5 hover:!bg-white/20
+                                                        active:translate-x-1 active:scale-95
+                                                        opacity-0 -translate-x-5 submenu-slide-in
+                                                        ${activeSub
                               ? 'bg-white text-blue-700 font-semibold'
                               : 'text-blue-100 hover:text-white'
                             }`}
@@ -218,16 +254,16 @@ export default function Sidebar() {
 
         <div className="px-3 pb-3 space-y-2">
           <button className="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-white/20 rounded-xl
-            transition-all duration-300 ease-out
-            hover:translate-x-1.5 hover:scale-105
-            active:translate-x-1 active:scale-95">
+                        transition-all duration-300 ease-out
+                        hover:translate-x-1.5 hover:scale-105
+                        active:translate-x-1 active:scale-95">
             <Settings size={20} />
             {isSidebarOpen && <span>Settings</span>}
           </button>
           <button onClick={handleLogout} className="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-red-500/30 rounded-xl
-            transition-all duration-300 ease-out
-            hover:translate-x-1.5 hover:scale-105
-            active:translate-x-1 active:scale-95">
+                        transition-all duration-300 ease-out
+                        hover:translate-x-1.5 hover:scale-105
+                        active:translate-x-1 active:scale-95">
             <LogOut size={20} />
             {isSidebarOpen && <span>Logout</span>}
           </button>
@@ -235,8 +271,8 @@ export default function Sidebar() {
 
         <div className="p-4 mt-auto">
           <div className="flex items-center space-x-3 text-white bg-white/10 backdrop-blur-sm rounded-xl p-3 cursor-pointer
-            transition-all duration-300
-            hover:scale-105 hover:bg-white/15">
+                        transition-all duration-300
+                        hover:scale-105 hover:bg-white/15">
             <div className="w-11 h-11 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center font-bold">
               JD
             </div>
