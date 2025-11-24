@@ -14,7 +14,7 @@ class CoursesController extends Controller
 
     public function index()
     {
-        $classes = Course::all();
+        $classes = Course::where('lecturer_id', Auth::id())->all();
 
         return response()->json([
             'success' => true,

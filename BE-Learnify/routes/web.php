@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CoursesController;
+use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WeekController;
 use App\Http\Controllers\MaterialController;
@@ -21,6 +22,9 @@ Route::prefix('api')->group(function() {
     Route::delete('/logout', [ UserController::class, 'logout' ])->middleware('auth:sanctum');
 
     // Courses
+    Route::post('/courses/{id}/join', [ EnrollmentController::class, 'enrollCourse' ])->middleware('auth:sanctum');
+    Route::delete('/courses/{id}/leave', [ EnrollmentController::class, 'unenrollCourse' ])->middleware('auth:sanctum');
+    Route::get('/courses/me', [ EnrollmentController::class, 'getMyCourses' ])->middleware('auth:sanctum');
     Route::resource('/courses', CoursesController::class)
         ->except(['create', 'edit' ])
         ->middleware('auth:sanctum');
