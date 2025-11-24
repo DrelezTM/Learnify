@@ -9,8 +9,15 @@ class Week extends Model
     protected $fillable = [
         'id',
         'course_id',
-        'week_number',
         'title',
-        'description',
+        'author_id'
     ];
+
+    public function course() {
+        return $this->belongsTo(Course::class);
+    }
+
+    public function materials() {
+        return $this->hasMany(Material::class);
+    }
 }

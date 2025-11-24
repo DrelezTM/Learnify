@@ -12,9 +12,14 @@ class CoursesController extends Controller
 {
     use MakeEnrollmentKey;
 
-    public function index()
+    public function index(Request $request)
     {
-        $classes = Course::all();
+        if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. You do not have the required role to access this resource.'
+        ], 403);
+
+        $classes = Course::where('lecturer_id', Auth::id())->get();
 
         return response()->json([
             'success' => true,
@@ -23,9 +28,9 @@ class CoursesController extends Controller
         ], 200);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        $class = Course::find($id);
+        $class = Course::with('weeks')->find($id);
 
         if (! $class) {
             return response()->json([
@@ -43,6 +48,11 @@ class CoursesController extends Controller
     }
 
     public function store(Request $request) {
+        if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. You do not have the required role to access this resource.'
+        ], 403);
+
         $validator = Validator::make($request->all(), [
             'title' => 'required|string',
             'description' => 'string',
@@ -86,6 +96,11 @@ class CoursesController extends Controller
     }
 
     public function update(Request $request, $id) {
+        if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. You do not have the required role to access this resource.'
+        ], 403);
+
         $course = Course::find($id);
 
         if (!$course) {
@@ -127,7 +142,12 @@ class CoursesController extends Controller
         ], 200);
     }
 
-    public function destroy($id) {
+    public function destroy(Request $request, $id) {
+        if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. You do not have the required role to access this resource.'
+        ], 403);
+
         $course = Course::find($id);
 
         if (!$course) {

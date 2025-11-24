@@ -3,10 +3,20 @@ import { baseAxios } from "./baseAxios";
 
 export async function fetchCourses() {
   try {
-    const { data } = await baseAxios.get(`/courses`, { email, password });
+    const { data } = await baseAxios.get(`/courses`);
     return data;
   } catch (error) {
-    console.error('Failed to login:', error);
+    console.error('Failed fetch courses:', error);
+    throw error;
+  }
+}
+
+export async function fetchDetailCourse(id) {
+  try {
+    const { data } = await baseAxios.get(`/courses/${id}`);
+    return data;
+  } catch (error) {
+    console.error(`Failed fetch course ${id}:`, error);
     throw error;
   }
 }

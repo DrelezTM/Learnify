@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ListKelasPage from "./pages/dashboard/ListKelasPage";
 import LoginPage from "./pages/authentication/LoginPage";
-import Detail from "./components/Detail";
+import Detail from "./components/DetailCourse";
 import ProtectedRoute from "./ProtectedRoute";
 import Schedule from "./components/Schedule/Calenderview";
 import SchedulePage from "./pages/dashboard/SchedulePage";
@@ -46,7 +46,7 @@ function App() {
    
 
         <Route
-          path="/courses/:kelasId"
+          path="/courses/:id"
           element={
           
               <Detail />
