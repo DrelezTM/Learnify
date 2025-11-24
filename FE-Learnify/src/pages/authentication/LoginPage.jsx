@@ -80,19 +80,6 @@ function LoginPage() {
                     >
                         Masuk
                     </button>
-
-                    <div className="relative flex items-center justify-center my-6">
-                        <div className="border-t border-white/30 flex-grow"></div>
-                        <span className="px-4 text-xs text-white/70 font-medium">Atau</span>
-                        <div className="border-t border-white/30 flex-grow"></div>
-                    </div>
-
-                    <button
-                        onClick={handleCreateAccount}
-                        className="w-full py-3.5 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/30 hover:border-white/50 transition-all duration-200"
-                    >
-                        Buat Akun
-                    </button>
                 </div>
             </div>
         </div>
