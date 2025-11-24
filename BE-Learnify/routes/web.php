@@ -30,7 +30,7 @@ Route::prefix('api')->group(function() {
         ->middleware('auth:sanctum');
 
     // Weeks
-    Route::resource('/weeks', WeekController::class);
+    Route::resource('/courses/weeks', WeekController::class)->only(['index']);
 
     // Materials
     Route::resource('/materials', MaterialController::class);
