@@ -12,7 +12,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        if (!$request->user()->tokenCan('role:lecturer') || !$request->user()->tokenCan('role:admin')) return response()->json([
+        if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
         ]);
@@ -46,7 +46,7 @@ class UserController extends Controller
     }
 
     public function register(Request $request) {
-        if (!$request->user()->tokenCan('role:lecturer') || !$request->user()->tokenCan('role:admin')) return response()->json([
+        if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
         ]);
@@ -90,14 +90,10 @@ class UserController extends Controller
             ], 500);
         }
 
-        $token = $createUser->createToken('AuthToken')->plainTextToken;
         return response()->json([
             'success' => true,
             'message' => 'User created successfully',
-            'data' => [
-                'user' => $createUser,
-                'token' => $token
-            ]
+            'data' => $createUser
         ], 201);
     }
 
@@ -135,7 +131,17 @@ class UserController extends Controller
                     'token' => $token
                 ]
             ], 200);
-        } else if ($checkUser->role == "student") {
+        } else if ($checkUser->role == "admin") {
+            $token = $checkUser->createToken('AuthToken', ['role:admin'])->plainTextToken;
+            return response()->json([
+                'success' => true,
+                'message' => 'User successfully logged in',
+                'data' => [
+                    'user' => $checkUser,
+                    'token' => $token
+                ]
+            ], 200);
+        } else {
             $token = $checkUser->createToken('AuthToken', ['role:student'])->plainTextToken;
             return response()->json([
                 'success' => true,

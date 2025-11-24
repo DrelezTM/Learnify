@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 class EnrollmentController extends Controller
 {
     public function enrollCourse(Request $request, $id) {
-        if (!$request->user()->tokenCan('role:student') || !$request->user()->tokenCan('role:admin')) return response()->json([
+        if (!$request->user()->tokenCan('role:student') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
         ]);
@@ -56,7 +56,7 @@ class EnrollmentController extends Controller
     }
 
     public function unenrollCourse(Request $request, $id) {
-        if (!$request->user()->tokenCan('role:student') || !$request->user()->tokenCan('role:admin')) return response()->json([
+        if (!$request->user()->tokenCan('role:student') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
         ]);
@@ -89,7 +89,7 @@ class EnrollmentController extends Controller
     }
 
     public function getMyCourses(Request $request) {
-        if (!$request->user()->tokenCan('role:student') || !$request->user()->tokenCan('role:admin')) return response()->json([
+        if (!$request->user()->tokenCan('role:student') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
         ]);

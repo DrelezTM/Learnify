@@ -14,7 +14,7 @@ class CoursesController extends Controller
 
     public function index(Request $request)
     {
-        if (!$request->user()->tokenCan('role:lecturer') || !$request->user()->tokenCan('role:admin')) return response()->json([
+        if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
         ]);
@@ -48,7 +48,7 @@ class CoursesController extends Controller
     }
 
     public function store(Request $request) {
-        if (!$request->user()->tokenCan('role:lecturer') || !$request->user()->tokenCan('role:admin')) return response()->json([
+        if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
         ]);
@@ -96,7 +96,7 @@ class CoursesController extends Controller
     }
 
     public function update(Request $request, $id) {
-        if (!$request->user()->tokenCan('role:lecturer') || !$request->user()->tokenCan('role:admin')) return response()->json([
+        if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
         ]);

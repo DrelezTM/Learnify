@@ -18,7 +18,7 @@ Route::get('/', function () {
 Route::prefix('api')->group(function() {
     // Auth
     Route::post('/login', [ UserController::class, 'login' ]);
-    Route::post('/register', [ UserController::class, 'register' ]);
+    Route::post('/register', [ UserController::class, 'register' ])->middleware('auth:sanctum');
     Route::delete('/logout', [ UserController::class, 'logout' ])->middleware('auth:sanctum');
 
     // Courses
