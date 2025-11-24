@@ -17,11 +17,11 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->enum('role', ['admin', 'dosen', 'mahasiswa']);
-            $table->string('major');
-            $table->string('study_program');
-            $table->string('class');
-            $table->string('batch');
+            $table->enum('role', ['admin', 'lecturer', 'student'])->default('student');
+            $table->string('major')->nullable();
+            $table->string('study_program')->nullable();
+            $table->string('class')->nullable();
+            $table->string('batch')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
