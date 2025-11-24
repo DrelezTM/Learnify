@@ -19,7 +19,7 @@ export default function Sidebar() {
       href: '/courses',
     },
     {
-      name: 'Absensi Per-Hari',
+      name: 'Presensi',
       icon: ClipboardCheck,
       href: '/attendance',
     },
