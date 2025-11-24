@@ -19,7 +19,7 @@ export default function Sidebar() {
       href: '/courses',
     },
     {
-      name: 'Absensi Per-Matkul',
+      name: 'Absensi Per-Hari',
       icon: ClipboardCheck,
       href: '/attendance',
     },
@@ -27,16 +27,9 @@ export default function Sidebar() {
       name: 'Schedule',
       icon: Calendar,
       href: '/schedule', 
-      submenu: [
-        { name: 'Schedule List', href: '/schedule/list' },
-        { name: 'Calendar View', href: '/schedule/calendar' }
-      ]
+      
     },
-    {
-      name: 'Forum',
-      icon: MessageCircle,
-      href: '/forum',
-    },
+   
   ];
 
   // --- Efek untuk Mengatur Menu Aktif berdasarkan URL ---

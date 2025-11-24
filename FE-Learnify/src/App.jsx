@@ -3,6 +3,8 @@ import ListKelasPage from "./pages/dashboard/ListKelasPage";
 import LoginPage from "./pages/authentication/LoginPage";
 import Detail from "./components/Detail";
 import ProtectedRoute from "./ProtectedRoute";
+import Schedule from "./components/Schedule/Calenderview";
+import SchedulePage from "./pages/dashboard/SchedulePage";
 import AttendancePage from "./pages/dashboard/AttendancePage";
 
 function App() {
@@ -16,27 +18,38 @@ function App() {
         <Route
           path="/courses"
           element={
-            <ProtectedRoute>
+           
               <ListKelasPage />
-            </ProtectedRoute>
+          
           }
         />
 
         <Route
+          path="/Schedule"
+          element={
+           
+              <SchedulePage />
+          
+          }
+        />
+
+   
+
+        <Route
           path="/courses/:kelasId"
           element={
-            <ProtectedRoute>
+          
               <Detail />
-            </ProtectedRoute>
+          
           }
         />
 
         <Route
           path="/attendance"
           element={
-            <ProtectedRoute>
+          
               <AttendancePage />
-            </ProtectedRoute>
+          
           }
         />
       </Routes>
