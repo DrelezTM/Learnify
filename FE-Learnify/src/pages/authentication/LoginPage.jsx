@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Mail, Lock, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { fetchLogin } from "@/lib/api";
+import { toast } from "react-hot-toast";
 
 function LoginPage() {
     const [email, setEmail] = useState("");
@@ -23,6 +24,7 @@ function LoginPage() {
             }
         } catch (error) {
             setIsLoading(false);
+            toast.error(error.response.data.message)
             console.error(error.response.data.message);
         } finally {
             setIsLoading(false);
