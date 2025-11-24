@@ -17,7 +17,7 @@ class CoursesController extends Controller
         if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
-        ]);
+        ], 403);
 
         $classes = Course::where('lecturer_id', Auth::id())->get();
 
@@ -51,7 +51,7 @@ class CoursesController extends Controller
         if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
-        ]);
+        ], 403);
 
         $validator = Validator::make($request->all(), [
             'title' => 'required|string',
@@ -99,7 +99,7 @@ class CoursesController extends Controller
         if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
-        ]);
+        ], 403);
 
         $course = Course::find($id);
 
@@ -142,7 +142,12 @@ class CoursesController extends Controller
         ], 200);
     }
 
-    public function destroy($id) {
+    public function destroy(Request $request, $id) {
+        if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. You do not have the required role to access this resource.'
+        ], 403);
+        
         $course = Course::find($id);
 
         if (!$course) {

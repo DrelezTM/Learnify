@@ -15,7 +15,7 @@ class UserController extends Controller
         if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
-        ]);
+        ], 403);
 
         $users = User::all();
 
@@ -49,7 +49,7 @@ class UserController extends Controller
         if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
-        ]);
+        ], 403);
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',

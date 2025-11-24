@@ -28,9 +28,7 @@ Route::prefix('api')->group(function() {
     Route::resource('/courses', CoursesController::class)
         ->except(['create', 'edit' ])
         ->middleware('auth:sanctum');
-
-    // Weeks
-    Route::resource('/courses/weeks', WeekController::class)->only(['index']);
+    Route::resource('/courses/{courseId}/weeks', WeekController::class)->only(['index', 'store', 'update', 'destroy'])->middleware('auth:sanctum');
 
     // Materials
     Route::resource('/materials', MaterialController::class);

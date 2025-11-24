@@ -14,7 +14,7 @@ class EnrollmentController extends Controller
         if (!$request->user()->tokenCan('role:student') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
-        ]);
+        ], 403);
 
         $validator = Validator::make($request->all(), [ 'enrollment_key' => 'required|string' ]);
 
@@ -59,7 +59,7 @@ class EnrollmentController extends Controller
         if (!$request->user()->tokenCan('role:student') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
-        ]);
+        ], 403);
 
         $course = Course::find($id);
 
@@ -92,7 +92,7 @@ class EnrollmentController extends Controller
         if (!$request->user()->tokenCan('role:student') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
-        ]);
+        ], 403);
 
         $courses = Enrollment::with('course')->where('user_id', Auth::id())->get();
 
