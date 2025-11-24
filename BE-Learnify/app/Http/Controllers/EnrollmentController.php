@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Validator;
 class EnrollmentController extends Controller
 {
     public function enrollCourse(Request $request, $id) {
+        if (!$request->user()->tokenCan('role:student') && !$request->user()->tokenCan('role:admin')) return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. You do not have the required role to access this resource.'
+        ]);
+
         $validator = Validator::make($request->all(), [ 'enrollment_key' => 'required|string' ]);
 
         if ($validator->fails()) return response()->json([
@@ -51,6 +56,11 @@ class EnrollmentController extends Controller
     }
 
     public function unenrollCourse(Request $request, $id) {
+        if (!$request->user()->tokenCan('role:student') && !$request->user()->tokenCan('role:admin')) return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. You do not have the required role to access this resource.'
+        ]);
+
         $course = Course::find($id);
 
         if (!$course) {
@@ -78,7 +88,12 @@ class EnrollmentController extends Controller
         ], 200);
     }
 
-    public function getMyCourses() {
+    public function getMyCourses(Request $request) {
+        if (!$request->user()->tokenCan('role:student') && !$request->user()->tokenCan('role:admin')) return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. You do not have the required role to access this resource.'
+        ]);
+
         $courses = Enrollment::with('course')->where('user_id', Auth::id())->get();
 
         return response()->json([

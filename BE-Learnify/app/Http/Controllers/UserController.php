@@ -10,8 +10,13 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. You do not have the required role to access this resource.'
+        ]);
+
         $users = User::all();
 
         return response()->json([
@@ -21,7 +26,7 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $user = User::find($id);
 
@@ -41,6 +46,11 @@ class UserController extends Controller
     }
 
     public function register(Request $request) {
+        if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
+            'success' => false,
+            'message' => 'Unauthorized. You do not have the required role to access this resource.'
+        ]);
+
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|unique:users,email',
@@ -80,14 +90,10 @@ class UserController extends Controller
             ], 500);
         }
 
-        $token = $createUser->createToken('AuthToken')->plainTextToken;
         return response()->json([
             'success' => true,
             'message' => 'User created successfully',
-            'data' => [
-                'user' => $createUser,
-                'token' => $token
-            ]
+            'data' => $createUser
         ], 201);
     }
 
@@ -115,15 +121,38 @@ class UserController extends Controller
             ], 404);
         }
 
-        $token = $checkUser->createToken('AuthToken')->plainTextToken;
-        return response()->json([
-            'success' => true,
-            'message' => 'User successfully logged in',
-            'data' => [
-                'user' => $checkUser,
-                'token' => $token
-            ]
-        ], 200);
+        if ($checkUser->role == "lecturer") {
+            $token = $checkUser->createToken('AuthToken', ['role:lecturer'])->plainTextToken;
+            return response()->json([
+                'success' => true,
+                'message' => 'User successfully logged in',
+                'data' => [
+                    'user' => $checkUser,
+                    'token' => $token
+                ]
+            ], 200);
+        } else if ($checkUser->role == "admin") {
+            $token = $checkUser->createToken('AuthToken', ['role:admin'])->plainTextToken;
+            return response()->json([
+                'success' => true,
+                'message' => 'User successfully logged in',
+                'data' => [
+                    'user' => $checkUser,
+                    'token' => $token
+                ]
+            ], 200);
+        } else {
+            $token = $checkUser->createToken('AuthToken', ['role:student'])->plainTextToken;
+            return response()->json([
+                'success' => true,
+                'message' => 'User successfully logged in',
+                'data' => [
+                    'user' => $checkUser,
+                    'token' => $token
+                ]
+            ], 200);
+        }
+
     }
 
     public function logout(Request $request) {
