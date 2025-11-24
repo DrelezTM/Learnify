@@ -9,8 +9,16 @@ class Material extends Model
     protected $fillable = [
         'id',
         'week_id',
+        'author_id',
         'title',
-        'file_path',
-        'content_type',
+        'content',
     ];
+
+    public function week() {
+        return $this->belongsTo(Week::class);
+    }
+
+    public function files() {
+        return $this->hasMany(MaterialFile::class);
+    }
 }

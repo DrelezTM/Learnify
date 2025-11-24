@@ -16,22 +16,18 @@ Route::get('/', function () {
 });
 
 Route::prefix('api')->group(function() {
-    // Auth
     Route::post('/login', [ UserController::class, 'login' ]);
     Route::post('/register', [ UserController::class, 'register' ])->middleware('auth:sanctum');
     Route::delete('/logout', [ UserController::class, 'logout' ])->middleware('auth:sanctum');
 
-    // Courses
     Route::post('/courses/{id}/join', [ EnrollmentController::class, 'enrollCourse' ])->middleware('auth:sanctum');
     Route::delete('/courses/{id}/leave', [ EnrollmentController::class, 'unenrollCourse' ])->middleware('auth:sanctum');
     Route::get('/courses/me', [ EnrollmentController::class, 'getMyCourses' ])->middleware('auth:sanctum');
     Route::resource('/courses', CoursesController::class)
         ->except(['create', 'edit' ])
         ->middleware('auth:sanctum');
-    Route::resource('/courses/{courseId}/weeks', WeekController::class)->only(['index', 'store', 'update', 'destroy'])->middleware('auth:sanctum');
-
-    // Materials
-    Route::resource('/materials', MaterialController::class);
+    Route::resource('/courses/{courseId}/weeks', WeekController::class)->only(['store', 'update', 'destroy'])->middleware('auth:sanctum');
+    Route::resource('/courses/{courseId}/weeks/{weekId}/materials', MaterialController::class)->middleware('auth:sanctum');
 
     // Assignments
     Route::resource('/assignments', AssignmentController::class);

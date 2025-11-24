@@ -17,4 +17,8 @@ class Course extends Model
         'lecturer_id',
         'slug',
     ];
+
+    public function weeks() {
+        return $this->hasMany(Week::class);
+    }
 }

@@ -5,21 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Course;
 use App\Models\Week;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class WeekController extends Controller
 {
-    public function index()
-    {
-        $weeks = Week::all();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Weeks retrieved successfully',
-            'data' => $weeks
-        ], 200);
-    }
-
     public function store(Request $request, $id) {
         if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
@@ -43,7 +33,8 @@ class WeekController extends Controller
 
         $createWeek = Week::create([
             'title' => $validate['title'],
-            'course_id' => $id
+            'course_id' => $id,
+            'author_id' => Auth::id()
         ]);
 
         if (!$createWeek) return response()->json([
