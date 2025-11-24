@@ -1,38 +1,47 @@
 import { useState } from "react";
-import { Mail, Lock, BookOpen } from "lucide-react";
+import { Mail, Lock, User, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { fetchLogin } from "@/lib/api";
 import { toast } from "react-hot-toast";
+import axios from "axios";
 
-function LoginPage() {
+function RegisterPage() {
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
     const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
         setIsLoading(true);
 
         try {
-            const data = await fetchLogin(email, password);
+            const token = document.cookie
+                .split("; ")
+                .find((row) => row.startsWith("token="))
+                ?.split("=")[1];
 
-            if (data.data.token) {
-                document.cookie = `token=${data.data.token}; path=/; max-age=${60 * 60 * 24 * 7}`;
-                navigate('/courses');
+            if (!token) {
+                toast.error("Kamu harus login dulu untuk membuat akun!");
+                setIsLoading(false);
+                return;
             }
+
+            const response = await axios.post(
+                "http://localhost:8000/api/register",
+                { name, email, password },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            toast.success(response.data.message || "Akun berhasil dibuat!");
+            navigate("/login");
+
         } catch (error) {
-            setIsLoading(false);
-            toast.error(error.response.data.message)
-            console.error(error.response.data.message);
+            toast.error(error.response?.data?.message || "Gagal membuat akun!");
         } finally {
             setIsLoading(false);
         }
-    };
-
-    const handleCreateAccount = () => {
-        console.log("Create account clicked");
     };
 
     return (
@@ -48,11 +57,22 @@ function LoginPage() {
                         <BookOpen className="text-blue-600" size={32} strokeWidth={2.5} />
                     </div>
                     <h1 className="text-3xl font-bold text-white mb-2">Learnify</h1>
-                    <h2 className="text-xl font-semibold text-white/95">Selamat Datang!</h2>
-                    <p className="text-sm text-white/70 mt-1">Silakan login untuk melanjutkan.</p>
+                    <h2 className="text-xl font-semibold text-white/95">Buat Akun Baru</h2>
+                    <p className="text-sm text-white/70 mt-1">Isi data di bawah untuk mendaftar.</p>
                 </div>
 
                 <div className="space-y-5">
+                    <div className="relative">
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-600" size={20} />
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Nama Lengkap"
+                            className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-white/15 text-white placeholder:text-white/60 border border-white/20 focus:border-white/50 focus:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all"
+                        />
+                    </div>
+
                     <div className="relative">
                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-600" size={20} />
                         <input
@@ -76,24 +96,28 @@ function LoginPage() {
                     </div>
 
                     <button
-                        onClick={handleLogin}
+                        onClick={handleRegister}
                         disabled={isLoading}
                         className={`w-full py-3.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-200 ${isLoading ? "opacity-80" : "opacity-100"}`}
                     >
-                        Masuk
+                        Daftar
                     </button>
 
-                    <button
-    onClick={() => navigate("/register")}
-    className="w-full py-3.5 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-xl transition-all mt-3"
->
-    Buat Akun
-</button>
-
+                    <div className="text-center mt-4">
+                        <p className="text-white/80 text-sm">
+                            Sudah punya akun?{" "}
+                            <span
+                                onClick={() => navigate("/login")}
+                                className="text-blue-300 font-semibold cursor-pointer hover:underline"
+                            >
+                                Masuk
+                            </span>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
     );
 }
 
-export default LoginPage;
+export default RegisterPage;

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ListKelasPage from "./pages/dashboard/ListKelasPage";
 import LoginPage from "./pages/authentication/LoginPage";
+import RegisterPage from "./pages/authentication/RegisterPage";
 import Detail from "./components/DetailCourse";
 import ProtectedRoute from "./ProtectedRoute";
 import Schedule from "./components/Schedule/Calenderview";
@@ -16,6 +17,7 @@ function App() {
       <Routes>
         {/* authentication */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         {/* protected routes */}
         <Route

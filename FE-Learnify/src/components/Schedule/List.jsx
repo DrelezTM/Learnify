@@ -233,7 +233,7 @@ export default function CalendarApp() {
                 onClick={() => setCurrentDate(new Date())}
                 className="flex-1 sm:flex-initial px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-full shadow-lg shadow-blue-500/30 hover:shadow-xl hover:scale-105 transition-all duration-300"
               >
-                Hari Ini
+                Bulan ini
               </button>
               <button
                 onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
