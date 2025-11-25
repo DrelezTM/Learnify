@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Course;
 use App\Models\Material;
 use App\Models\MaterialFile;
 use App\Models\Week;
@@ -31,6 +32,12 @@ class MaterialController extends Controller
         ], 422);
 
         $validate = $validator->validate();
+
+        $course = Course::where('id', $courseId)->first();
+        if (!$course) return response()->json([
+            'success' => false,
+            'message' => 'Course not found.'
+        ], 404);
 
         $week = Week::find($weekId);
         if (!$week) {
@@ -76,7 +83,18 @@ class MaterialController extends Controller
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
         ], 403);
 
+        $course = Course::where('id', $courseId)->first();
+        if (!$course) return response()->json([
+            'success' => false,
+            'message' => 'Course not found.'
+        ], 404);
+
         $material = Material::where('week_id', $weekId)->where('id', $id)->first();
+        if (!$material) return response()->json([
+            'success' => false,
+            'message' => 'Invalid week ID provided.'
+        ], 400);
+
         $materialFiles = MaterialFile::where('material_id', $id)->get();
         foreach ($materialFiles as $file) {
             Storage::disk('public')->delete($file->file_path);
@@ -88,6 +106,26 @@ class MaterialController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Material and its associated files have been deleted successfully.'
+        ], 200);
+    }
+
+    public function show(Request $request, $courseId, $weekId, $id) {
+        $course = Course::where('id', $courseId)->first();
+        if (!$course) return response()->json([
+            'success' => false,
+            'message' => 'Course not found.'
+        ], 404);
+
+        $material = Material::with('files')->where('week_id', $weekId)->where('id', $id)->first();
+        if (!$material) return response()->json([
+            'success' => false,
+            'message' => 'Invalid week ID provided.'
+        ], 400);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Material details retrieved successfully',
+            'data' => $material
         ], 200);
     }
 }

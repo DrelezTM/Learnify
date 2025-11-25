@@ -25,15 +25,16 @@ Route::prefix('api')->group(function() {
     Route::post('/courses/{id}/join', [ EnrollmentController::class, 'enrollCourse' ])->middleware('auth:sanctum');
     Route::delete('/courses/{id}/leave', [ EnrollmentController::class, 'unenrollCourse' ])->middleware('auth:sanctum');
     Route::get('/courses/me', [ EnrollmentController::class, 'getMyCourses' ])->middleware('auth:sanctum');
+
     Route::resource('/courses', CoursesController::class)
         ->except(['create', 'edit' ])
         ->middleware('auth:sanctum');
-    Route::resource('/courses/{courseId}/weeks', WeekController::class)->only(['store', 'update', 'destroy'])->middleware('auth:sanctum');
-    Route::resource('/courses/{courseId}/weeks/{weekId}/materials', MaterialController::class)->middleware('auth:sanctum');
 
-    // Assignments
-    Route::resource('/assignments', AssignmentController::class);
-    Route::resource('/assignments/submissions', AssignmentSubmissionController::class);
+    Route::resource('/courses/{courseId}/weeks', WeekController::class)->only(['store', 'update', 'destroy'])->middleware('auth:sanctum');
+    Route::resource('/courses/{courseId}/weeks/{weekId}/materials', MaterialController::class)->middleware('auth:sanctum')->only(['store', 'destroy', 'show']);
+    
+    Route::resource('/courses/{courseId}/weeks/{weekId}/assignments', AssignmentController::class)->only(['store', 'destroy', 'show'])->middleware('auth:sanctum');
+    Route::resource('/courses/{courseId}/weeks/{weekId}/assignments/{assignmentId}/submissions', AssignmentSubmissionController::class);
 
     // Attendances
     Route::resource('/attendances/sessions', AttendanceSessionController::class);

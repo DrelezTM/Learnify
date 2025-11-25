@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('assignments', function (Blueprint $table) {
+        Schema::create('submission_files', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('week_id')->constrained('weeks', 'id')->onDelete('cascade');
-            $table->string('title');
-            $table->text('description')->nullable();
-            $table->timestamp('deadline');
+            $table->foreignId('submission_id')->constrained('assignment_submissions', 'id')->onDelete('cascade');
+            $table->string('file_path');
             $table->timestamps();
         });
     }
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('assignments');
+        Schema::dropIfExists('submission_files');
     }
 };

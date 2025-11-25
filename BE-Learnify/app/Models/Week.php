@@ -20,4 +20,8 @@ class Week extends Model
     public function materials() {
         return $this->hasMany(Material::class);
     }
+
+    public function assignments() {
+        return $this->hasMany(Assignment::class);
+    }
 }
