@@ -21,6 +21,21 @@ export async function fetchDetailCourse(id) {
   }
 }
 
+export async function attendSession(session_id, user_id) {
+  try {
+    const { data } = await baseAxios.post(`/attendance/hadir`, {
+      session_id: session_id,
+      user_id: user_id
+    });
+    return data;
+  } catch (error) {
+    console.error("Failed to attend session:", error);
+    throw error;
+  }
+}
+
+
+
 export async function fetchLogin(email, password) {
   try {
     const { data } = await baseAxios.post(`/login`, { email, password });
@@ -55,5 +70,5 @@ export async function fetchLogout() {
 // }
 
 export default {
-  fetchCourses, fetchLogin
+  fetchCourses, fetchLogin, attendSession,
 };

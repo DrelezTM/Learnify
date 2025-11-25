@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttendanceOverviewController;
 use App\Http\Controllers\CoursesController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\UserController;
@@ -10,21 +11,24 @@ use App\Http\Controllers\AssignmentSubmissionController;
 use App\Http\Controllers\AttendanceSessionController;
 use App\Http\Controllers\AttendanceRecordController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AttendanceController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::prefix('api')->group(function() {
-    Route::post('/login', [ UserController::class, 'login' ]);
-    Route::post('/register', [ UserController::class, 'register' ])->middleware('auth:sanctum');
-    Route::delete('/logout', [ UserController::class, 'logout' ])->middleware('auth:sanctum');
+Route::prefix('api')->group(function () {
+    Route::get('/attendance/today', [AttendanceController::class, 'today']);
+    Route::post('/attendance/hadir', [AttendanceController::class, 'hadir']);
+    Route::post('/login', [UserController::class, 'login']);
+    Route::post('/register', [UserController::class, 'register'])->middleware('auth:sanctum');
+    Route::delete('/logout', [UserController::class, 'logout'])->middleware('auth:sanctum');
 
-    Route::post('/courses/{id}/join', [ EnrollmentController::class, 'enrollCourse' ])->middleware('auth:sanctum');
-    Route::delete('/courses/{id}/leave', [ EnrollmentController::class, 'unenrollCourse' ])->middleware('auth:sanctum');
-    Route::get('/courses/me', [ EnrollmentController::class, 'getMyCourses' ])->middleware('auth:sanctum');
+    Route::post('/courses/{id}/join', [EnrollmentController::class, 'enrollCourse'])->middleware('auth:sanctum');
+    Route::delete('/courses/{id}/leave', [EnrollmentController::class, 'unenrollCourse'])->middleware('auth:sanctum');
+    Route::get('/courses/me', [EnrollmentController::class, 'getMyCourses'])->middleware('auth:sanctum');
     Route::resource('/courses', CoursesController::class)
-        ->except(['create', 'edit' ])
+        ->except(['create', 'edit'])
         ->middleware('auth:sanctum');
     Route::resource('/courses/{courseId}/weeks', WeekController::class)->only(['store', 'update', 'destroy'])->middleware('auth:sanctum');
     Route::resource('/courses/{courseId}/weeks/{weekId}/materials', MaterialController::class)->middleware('auth:sanctum');
@@ -37,6 +41,3 @@ Route::prefix('api')->group(function() {
     Route::resource('/attendances/sessions', AttendanceSessionController::class);
     Route::resource('/attendances/records', AttendanceRecordController::class);
 });
-
-
-

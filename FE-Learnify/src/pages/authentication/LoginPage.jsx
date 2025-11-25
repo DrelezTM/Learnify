@@ -20,19 +20,22 @@ function LoginPage() {
 
             if (data.data.token) {
                 document.cookie = `token=${data.data.token}; path=/; max-age=${60 * 60 * 24 * 7}`;
+
+                if (data.data.user) {
+                    localStorage.setItem("user", JSON.stringify(data.data.user));
+                    localStorage.setItem("user_id", data.data.user.id);
+                }
+
                 navigate('/courses');
             }
         } catch (error) {
             setIsLoading(false);
-            toast.error(error.response.data.message)
-            console.error(error.response.data.message);
+            const message = error.response?.data?.message || "Login Failed";
+            toast.error(message);
+            console.error(message);
         } finally {
             setIsLoading(false);
         }
-    };
-
-    const handleCreateAccount = () => {
-        console.log("Create account clicked");
     };
 
     return (
@@ -84,11 +87,11 @@ function LoginPage() {
                     </button>
 
                     <button
-    onClick={() => navigate("/register")}
-    className="w-full py-3.5 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-xl transition-all mt-3"
->
-    Buat Akun
-</button>
+                        onClick={() => navigate("/register")}
+                        className="w-full py-3.5 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-xl transition-all mt-3"
+                    >
+                        Buat Akun
+                    </button>
 
                 </div>
             </div>

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Attendance_Record;
+use App\Models\AttendanceRecord;
 
 class AttendanceRecordController extends Controller
 {
     public function index()
     {
-        $items = Attendance_Record::all();
+        $items = AttendanceRecord::all();
 
         return response()->json([
             'success' => true,
@@ -19,7 +19,7 @@ class AttendanceRecordController extends Controller
 
     public function show($id)
     {
-        $item = Attendance_Record::find($id);
+        $item = AttendanceRecord::find($id);
 
         if (! $item) {
             return response()->json([
