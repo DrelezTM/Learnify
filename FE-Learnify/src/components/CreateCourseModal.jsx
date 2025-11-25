@@ -51,7 +51,7 @@ export default function CreateCourseModal({ isOpen, onClose, onSuccess }) {
                         <label className="block text-sm font-medium">Judul Course</label>
                         <input
                             type="text"
-                            className="w-full border rounded-xl px-3 py-2 mt-1"
+                            className="w-full border-2 rounded-xl px-3 py-2 mt-1"
 
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
@@ -62,7 +62,7 @@ export default function CreateCourseModal({ isOpen, onClose, onSuccess }) {
                     <div>
                         <label className="block text-sm font-medium">Deskripsi</label>
                         <textarea
-                            className="w-full border rounded-xl px-3 py-2 mt-1"
+                            className="w-full border-2 rounded-xl px-3 py-2 mt-1"
 
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
@@ -75,7 +75,7 @@ export default function CreateCourseModal({ isOpen, onClose, onSuccess }) {
                             <label className="block text-sm font-medium">Major</label>
                             <input
                                 type="text"
-                                className="w-full border rounded-xl px-3 py-2 mt-1"
+                                className="w-full border-2 rounded-xl px-3 py-2 mt-1"
                                 value={major}
                                 onChange={(e) => setMajor(e.target.value)}
                             />
@@ -85,7 +85,7 @@ export default function CreateCourseModal({ isOpen, onClose, onSuccess }) {
                             <label className="block text-sm font-medium">Study Program</label>
                             <input
                                 type="text"
-                                className="w-full border rounded-xl px-3 py-2 mt-1"
+                                className="w-full border-2 rounded-xl px-3 py-2 mt-1"
 
                                 value={studyProgram}
                                 onChange={(e) => setStudyProgram(e.target.value)}
@@ -96,7 +96,7 @@ export default function CreateCourseModal({ isOpen, onClose, onSuccess }) {
                             <label className="block text-sm font-medium">Class</label>
                             <input
                                 type="text"
-                                className="w-full border rounded-xl px-3 py-2 mt-1"
+                                className="w-full border-2 rounded-xl px-3 py-2 mt-1"
 
                                 value={className}
                                 onChange={(e) => setClassName(e.target.value)}
@@ -107,7 +107,7 @@ export default function CreateCourseModal({ isOpen, onClose, onSuccess }) {
                             <label className="block text-sm font-medium">Batch</label>
                             <input
                                 type="text"
-                                className="w-full border rounded-xl px-3 py-2 mt-1"
+                                className="w-full border-2 rounded-xl px-3 py-2 mt-1"
 
                                 value={batch}
                                 onChange={(e) => setBatch(e.target.value)}

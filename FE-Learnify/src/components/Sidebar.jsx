@@ -36,7 +36,6 @@ export default function Sidebar() {
 
   ];
 
-  // --- Efek untuk Mengatur Menu Aktif berdasarkan URL ---
   useEffect(() => {
     const currentPath = location.pathname;
 

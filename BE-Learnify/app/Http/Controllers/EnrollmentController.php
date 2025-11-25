@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 
 class EnrollmentController extends Controller
 {
-    public function enrollCourse(Request $request, $id) {
+    public function enrollCourse(Request $request) {
         if (!$request->user()->tokenCan('role:student') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
@@ -25,7 +25,7 @@ class EnrollmentController extends Controller
 
         $validate = $validator->validate();
 
-        $enrollment = Course::where('enrollment_key', $validate['enrollment_key'])->where('id', $id)->first();
+        $enrollment = Course::where('enrollment_key', $validate['enrollment_key'])->first();
         if (!$enrollment) return response()->json([
             'success' => false,
             'message' => 'Invalid enrollment key.'

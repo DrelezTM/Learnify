@@ -22,6 +22,17 @@ export async function createCourse(title, description, major, studyProgram, clas
   }
 }
 
+// Student
+export async function joinCourse(enrollment_key) {
+  try {
+    const { data } = await baseAxios.post(`/courses/join`, { enrollment_key });
+    return data;
+  } catch (error) {
+    console.error('Failed join course:', error);
+    throw error;
+  }
+}
+
 export async function fetchCoursesStudent() {
   try {
     const { data } = await baseAxios.get(`/courses/me`);
@@ -95,7 +106,3 @@ export async function fetchProfile(id) {
 //     throw new Error(`API error: ${err}`);
 //   })
 // }
-
-export default {
-  fetchCourses, fetchLogin
-};

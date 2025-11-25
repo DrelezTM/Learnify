@@ -5,6 +5,7 @@ import { fetchCourses, fetchCoursesStudent } from "@/lib/api";
 import { Button } from "./ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import CreateCourseModal from "./CreateCourseModal";
+import JoinCourseModal from "./JoinCourseModal";
 
 export default function CoursesList() {
 
@@ -12,6 +13,7 @@ export default function CoursesList() {
     const [loading, setLoading] = useState(true);
 
     const [showModalCreate, setShowModalCreate] = useState(false);
+    const [showModalJoin, setShowModalJoin] = useState(false);
 
     // UI states
     const [search, setSearch] = useState("");
@@ -20,17 +22,34 @@ export default function CoursesList() {
 
     const isLecturer = user?.role == "lecturer"
 
+    function normalizeCourse(course, isLecturer) {
+        if (isLecturer) {
+            return {
+                id: course.id,
+                title: course.title,
+                description: course.description,
+                raw: course
+            };
+        } else {
+            return {
+                id: course.course.id,
+                title: course.course.title,
+                description: course.course.description,
+                raw: course
+            };
+        }
+    }
+
 
     useEffect(() => {
         if (!user) return;
         async function loadMyCourse() {
             try {
                 const res = await fetchCoursesStudent();
-                setCourses(
-                    res.data
-                );
+                setCourses(res.data.map((course) => normalizeCourse(course, false)));
 
-                console.log(res)
+                // console.log(res)
+
             } catch (error) {
                 console.error("Failed load courses:", error);
             } finally {
@@ -41,11 +60,10 @@ export default function CoursesList() {
         async function loadAllDataCourse() {
             try {
                 const res = await fetchCourses();
-                setCourses(
-                    res.data
-                );
+                setCourses(res.data.map((course) => normalizeCourse(course, true)));
 
-                console.log(res)
+                // console.log(res)
+
             } catch (error) {
                 console.error("Failed load courses:", error);
             } finally {
@@ -73,10 +91,10 @@ export default function CoursesList() {
         try {
             if (isLecturer) {
                 const res = await fetchCourses()
-                setCourses(res.data)
+                setCourses(res.data.map((course) => normalizeCourse(course, true)));
             } else {
                 const res = await fetchCoursesStudent()
-                setCourses(res.data)
+                setCourses(res.data.map((course) => normalizeCourse(course, false)));
             }
         } catch (err) {
             console.error("Reload failed:", err)
@@ -104,6 +122,22 @@ export default function CoursesList() {
                             className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
+
+                    {!isLecturer && (
+                        <Button
+                            className="flex items-center gap-2 h-full px-4 py-2.5 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50"
+                            onClick={() => setShowModalJoin(true)}
+
+                        >
+                            Join Course
+                        </Button>
+                    )}
+
+                    <JoinCourseModal
+                        isOpen={showModalJoin}
+                        onClose={() => setShowModalJoin(false)}
+                        onSuccess={reloadCourses}
+                    />
                 </div>
 
                 {/* Title */}

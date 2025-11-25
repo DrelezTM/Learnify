@@ -22,7 +22,7 @@ Route::prefix('api')->group(function() {
     Route::get('/me', [ UserController::class, 'me' ])->middleware('auth:sanctum');
     Route::get('/user/show/{id}', [ UserController::class, 'show' ])->middleware('auth:sanctum');
 
-    Route::post('/courses/{id}/join', [ EnrollmentController::class, 'enrollCourse' ])->middleware('auth:sanctum');
+    Route::post('/courses/join', [ EnrollmentController::class, 'enrollCourse' ])->middleware('auth:sanctum');
     Route::delete('/courses/{id}/leave', [ EnrollmentController::class, 'unenrollCourse' ])->middleware('auth:sanctum');
     Route::get('/courses/me', [ EnrollmentController::class, 'getMyCourses' ])->middleware('auth:sanctum');
 
