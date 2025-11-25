@@ -87,21 +87,28 @@ class WeekController extends Controller
         ], 201);
     }
 
-    public function destroy(Request $request, $id) {
+    public function destroy(Request $request, $courseId, $id) {
         if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
         ], 403);
-        
-        $course = Course::find($id);
 
+        $course = Course::find($courseId);
         if (!$course) return response()->json([
+            'success' => false,
+            'message' => 'Course not found',
+            'data' => null
+        ], 404);
+        
+        $week = Week::find($id);
+
+        if (!$week) return response()->json([
             'success' => false,
             'message' => 'Week not found',
             'data' => null
         ], 404);
 
-        $course->delete();
+        $week->delete();
         return response()->json([
             'success' => true,
             'message' => 'Week deleted successfully',
