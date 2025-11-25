@@ -1,9 +1,20 @@
 import { baseAxios } from "./baseAxios";
 
 
+// Lecturer
 export async function fetchCourses() {
   try {
     const { data } = await baseAxios.get(`/courses`);
+    return data;
+  } catch (error) {
+    console.error('Failed fetch courses:', error);
+    throw error;
+  }
+}
+
+export async function fetchCoursesStudent() {
+  try {
+    const { data } = await baseAxios.get(`/courses/me`);
     return data;
   } catch (error) {
     console.error('Failed fetch courses:', error);

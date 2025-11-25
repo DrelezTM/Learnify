@@ -92,7 +92,7 @@ function CoursesList() {
 
                 {/* Title */}
                 <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                    Cari Course ({filteredCourses.length})
+                    List Course ({filteredCourses.length})
                 </h2>
 
                 {/* Kartu course */}

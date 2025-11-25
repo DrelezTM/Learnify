@@ -1,14 +1,14 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ListKelasPage from "./pages/dashboard/ListKelasPage";
+import CourseListPage from "./pages/dashboard/CourseListPage";
 import LoginPage from "./pages/authentication/LoginPage";
 import RegisterPage from "./pages/authentication/RegisterPage";
-import Detail from "./components/DetailCourse";
 import ProtectedRoute from "./ProtectedRoute";
 import Schedule from "./components/Schedule/Calenderview";
 import SchedulePage from "./pages/dashboard/SchedulePage";
 import AttendancePage from "./pages/dashboard/AttendancePage";
 import Home from "./pages/dashboard/Home";
 import { AuthProvider } from "./contexts/AuthContext";
+import CourseDetailPage from "./pages/dashboard/CourseDetailPage";
 
 function App() {
   return (
@@ -23,9 +23,7 @@ function App() {
           <Route
             path="/courses"
             element={
-
-              <ListKelasPage />
-
+              <CourseListPage />
             }
           />
 
@@ -51,7 +49,7 @@ function App() {
             path="/courses/:id"
             element={
 
-              <Detail />
+              <CourseDetailPage />
 
             }
           />
