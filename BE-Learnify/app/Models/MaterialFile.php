@@ -9,7 +9,8 @@ class MaterialFile extends Model
     protected $fillable = [
         'id',
         'material_id',
-        'file_path'
+        'file_path',
+        'file_name'
     ];
 
     public function material() {

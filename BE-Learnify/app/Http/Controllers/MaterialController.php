@@ -61,10 +61,12 @@ class MaterialController extends Controller
 
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
+                $filename = $file->getClientOriginalName();
                 $path = $file->store('materials', 'public');
 
                 MaterialFile::create([
                     'material_id' => $createMaterials->id,
+                    'file_name' => $filename,
                     'file_path' => $path
                 ]);
             }
