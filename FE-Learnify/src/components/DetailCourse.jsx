@@ -16,12 +16,13 @@ import { toast } from "react-hot-toast";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { fetchDetailCourse, fetchProfile, deleteWeek } from "@/lib/api";
+import { fetchDetailCourse, fetchProfile, deleteWeek, deleteCourse } from "@/lib/api";
 import WeekModal from "./WeekModal";
 import AddWeekContentModal from "./AddWeekContentModal";
 import { formatDeadline } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
+import CreateEditCourseModal from "./CreateEditCourseModal";
 
 export default function DetailCourse() {
   const { id } = useParams();
@@ -31,13 +32,14 @@ export default function DetailCourse() {
   const [lecturer, setLecturer] = useState(null);
   const [weeks, setWeeks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState("pekan");
 
   const [showModalAddWeek, setShowModalAddWeek] = useState(false);
   const [showEditWeekModal, setShowEditWeekModal] = useState(false);
   const [selectedWeekData, setSelectedWeekData] = useState(null);
   const [showModalWeekContent, setShowModalWeekContent] = useState(false);
   const [selectedWeekId, setSelectedWeekId] = useState(null);
+
+  const [showEditCourseModal, setShowEditCourseModal] = useState(false)
 
   const isOwner = user?.id === course?.lecturer_id;
 
@@ -61,10 +63,6 @@ export default function DetailCourse() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const reloadWeeks = async () => {
-    await loadCourse();
   };
 
   const handleEditWeek = (week) => {
@@ -97,15 +95,58 @@ export default function DetailCourse() {
     <div className="p-8 space-y-8 w-full mx-16">
       {/* HEADER CARD */}
       <Card className="p-10 shadow-lg rounded-3xl bg-white/30 backdrop-blur-xl border border-white/40 transition-all">
-        <h1 className="text-5xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
-          {course.title}
-        </h1>
+        <div className="flex justify-between">
+          <h1 className="text-5xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
+            {course.title}
+          </h1>
+
+          {isOwner && (
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="h-8 w-8 text-gray-700 shadow-none">
+                  <MoreHorizontal size={16} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => setShowEditCourseModal(true)}
+                  className="flex hover:cursor-pointer hover:opacity-80 transition-all items-center gap-2"
+                >
+                  <Pencil size={16} /> Edit Course
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={async () => {
+                    if (!confirm(`Yakin ingin menghapus "${course.title}"?`)) return;
+
+                    try {
+                      await deleteCourse(course.id);
+                      toast.success("Course berhasil dihapus");
+                      window.location.href = "/courses";
+                    } catch (error) {
+                      toast.error("Gagal menghapus course");
+                    }
+                  }}
+                  className="flex hover:cursor-pointer hover:opacity-80 transition-all  items-center gap-2 text-red-600"
+                >
+                  <Trash size={16} /> Hapus Course
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+          )}
+        </div>
 
         <p className="text-lg text-gray-600 mt-2">
+          {course.description}
+        </p>
+
+        <p className="text-lg text-gray-600 mt-6 font-bold">
           Kode Course: <span className="font-bold text-gray-900">{course.code}</span>
         </p>
 
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+
+        <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
           {/* Enrollment Key */}
           <div className="p-6 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 shadow-md hover:shadow-lg transition-all">
             <p className="text-xs text-blue-700 uppercase tracking-wider font-semibold">
@@ -126,109 +167,66 @@ export default function DetailCourse() {
         </div>
       </Card>
 
-      {/* TABS */}
-      <div className="flex gap-2 pt-2 border-b border-gray-200">
-        <Button
-          variant={tab === "pekan" ? "default" : "ghost"}
-          onClick={() => setTab("pekan")}
-          className={`font-semibold rounded-b-none px-6 py-2 transition-all ${tab === "pekan"
-            ? "bg-blue-600 text-white shadow-md hover:bg-blue-700"
-            : "text-gray-600 hover:text-blue-600"
-            }`}
-        >
-          <BookOpen size={20} className="mr-2" />
-          Materi Course
-        </Button>
+
+
+      <Card className="p-3 shadow-xl rounded-3xl border border-gray-200 bg-white/70 backdrop-blur-lg transition-all">
 
         {isOwner && (
-          <Button
-            variant={tab === "pengaturan" ? "default" : "ghost"}
-            onClick={() => setTab("pengaturan")}
-            className={`font-semibold rounded-b-none px-6 py-2 transition-all ${tab === "pengaturan"
-              ? "bg-blue-600 text-white shadow-md hover:bg-blue-700"
-              : "text-gray-600 hover:text-blue-600"
-              }`}
-          >
-            <Settings size={20} className="mr-2" />
-            Pengaturan
-          </Button>
-        )}
-      </div>
-
-      {/* TAB CONTENT */}
-      <Card className="p-3 shadow-xl rounded-3xl border border-gray-200 bg-white/70 backdrop-blur-lg transition-all">
-        {tab === "pekan" && (
           <>
-            {isOwner && (
-              <>
-                <Button
-                  className="w-fit py-5 px-6 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-200 mb-4"
-                  onClick={() => setShowModalAddWeek(true)}
-                >
-                  Tambah Pekan
-                </Button>
+            <Button
+              className="w-fit py-5 px-6 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-200 mb-4"
+              onClick={() => setShowModalAddWeek(true)}
+            >
+              Tambah Pekan
+            </Button>
 
-                {/* Modal Add/Edit Week */}
-                <WeekModal
-                  mode={showEditWeekModal ? "edit" : "add"}
-                  courseId={course.id}
-                  weekId={selectedWeekData?.id}
-                  initialTitle={selectedWeekData?.title}
-                  isOpen={showModalAddWeek || showEditWeekModal}
-                  onClose={() => {
-                    setShowModalAddWeek(false);
-                    setShowEditWeekModal(false);
-                    setSelectedWeekData(null);
-                  }}
-                  onSuccess={reloadWeeks}
-                />
-              </>
-            )}
-
-            <WeeksList
-              course={course}
-              weeks={weeks}
-              isOwner={isOwner}
-              reloadWeeks={reloadWeeks}
-              onEditWeek={handleEditWeek}
-              onAddContent={handleAddContent}
+            {/* Modal Add/Edit Week */}
+            <WeekModal
+              mode={showEditWeekModal ? "edit" : "add"}
+              courseId={course.id}
+              weekId={selectedWeekData?.id}
+              initialTitle={selectedWeekData?.title}
+              isOpen={showModalAddWeek || showEditWeekModal}
+              onClose={() => {
+                setShowModalAddWeek(false);
+                setShowEditWeekModal(false);
+                setSelectedWeekData(null);
+              }}
+              onSuccess={loadCourse}
             />
-
-            {/* Modal Add Content */}
-            {selectedWeekId && (
-              <AddWeekContentModal
-                weekId={selectedWeekId}
-                courseId={course.id}
-                isOpen={showModalWeekContent}
-                onClose={() => setShowModalWeekContent(false)}
-                onSuccess={reloadWeeks}
-              />
-            )}
           </>
         )}
 
-        {tab === "pengaturan" && isOwner && (
-          <div className="space-y-8">
-            <h2 className="text-3xl font-bold text-gray-800 border-b pb-2">
-              Pengaturan Dosen
-            </h2>
+        <WeeksList
+          course={course}
+          weeks={weeks}
+          isOwner={isOwner}
+          reloadWeeks={loadCourse}
+          onEditWeek={handleEditWeek}
+          onAddContent={handleAddContent}
+        />
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button
-                variant="outline"
-                className="text-yellow-700 border-yellow-300 bg-yellow-50 hover:bg-yellow-100 hover:text-yellow-800 font-semibold shadow-sm"
-              >
-                <RefreshCcw size={18} className="mr-2" />
-                Reset Enrollment Key
-              </Button>
-
-              <Button variant="destructive" className="font-semibold shadow-sm">
-                <Trash2 size={18} className="mr-2" />
-                Hapus Course
-              </Button>
-            </div>
-          </div>
+        {/* Modal Add Content */}
+        {selectedWeekId && (
+          <AddWeekContentModal
+            weekId={selectedWeekId}
+            courseId={course.id}
+            isOpen={showModalWeekContent}
+            onClose={() => setShowModalWeekContent(false)}
+            onSuccess={loadCourse}
+          />
         )}
+
+        {/* edit course modal */}
+        <CreateEditCourseModal
+          mode="edit"
+          isOpen={showEditCourseModal}
+          onClose={() => setShowEditCourseModal(false)}
+          onSuccess={loadCourse}
+          initialData={course}
+          courseId={course.id}
+        />
+
       </Card>
     </div>
   );
@@ -282,7 +280,7 @@ const WeeksList = ({ weeks, isOwner, course, reloadWeeks, onEditWeek, onAddConte
 
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button  className="h-8 w-8 text-gray-700 shadow-none">
+                        <Button className="h-8 w-8 text-gray-700 shadow-none">
                           <MoreHorizontal size={16} />
                         </Button>
                       </DropdownMenuTrigger>

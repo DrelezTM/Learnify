@@ -1,17 +1,21 @@
-import React, { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { createCourse } from "@/lib/api";
+import React, { useEffect, useState } from "react";
+import { createCourse, editCourse } from "@/lib/api";
 import {
     Dialog,
-
     DialogContent,
     DialogTitle,
-} from "./ui/dialog"
+} from "./ui/dialog";
 import { toast } from "react-hot-toast";
 
-export default function CreateCourseModal({ isOpen, onClose, onSuccess }) {
-    const { user } = useAuth();
-
+export default function CreateEditCourseModal({
+    isOpen,
+    onClose,
+    onSuccess,
+    mode = "create",
+    initialData = {},
+    courseId,
+}) {
+    // STATES
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [major, setMajor] = useState("");
@@ -21,21 +25,49 @@ export default function CreateCourseModal({ isOpen, onClose, onSuccess }) {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
+    useEffect(() => {
+        if (mode === "edit" && initialData) {
+            setTitle(initialData.title || "");
+            setDescription(initialData.description || "");
+            setMajor(initialData.major || "");
+            setStudyProgram(initialData.study_program || "");
+            setClassName(initialData.class || "");
+            setBatch(initialData.batch || "");
+        }
+
+        if (mode === "create") {
+            setTitle("");
+            setDescription("");
+            setMajor("");
+            setStudyProgram("");
+            setClassName("");
+            setBatch("");
+        }
+    }, [mode, initialData, isOpen]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setErrors({});
 
         try {
-            await createCourse(title, description, major, studyProgram, className, batch)
-            onClose()
-            onSuccess()
+            if (mode === "create") {
+                await createCourse(title, description, major, studyProgram, className, batch);
+                toast.success("Course berhasil dibuat!");
+            } else {
+                await editCourse(courseId, title, description, major, studyProgram, className, batch);
+                toast.success("Course berhasil diperbarui!");
+            }
+
+            onClose();
+            onSuccess();
+
         } catch (err) {
             if (err.response?.data?.errors) {
                 setErrors(err.response.data.errors);
             } else {
                 console.error(err);
-                toast.error("Terjadi kesalahan saat membuat course");
+                toast.error("Terjadi kesalahan pada server");
             }
         } finally {
             setLoading(false);
@@ -43,27 +75,30 @@ export default function CreateCourseModal({ isOpen, onClose, onSuccess }) {
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose} className="relative z-50">
+        <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="bg-white rounded-xl w-full max-w-lg p-6 shadow-lg">
-                <DialogTitle className="text-2xl font-bold mb-4">Buat Course Baru</DialogTitle>
+                <DialogTitle className="text-2xl font-bold mb-4">
+                    {mode === "create" ? "Buat Course Baru" : "Edit Course"}
+                </DialogTitle>
+
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* Title */}
                     <div>
                         <label className="block text-sm font-medium">Judul Course</label>
                         <input
                             type="text"
                             className="w-full border-2 rounded-xl px-3 py-2 mt-1"
-
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                         />
                         {errors.title && <p className="text-red-500 text-sm">{errors.title[0]}</p>}
                     </div>
 
+                    {/* Description */}
                     <div>
                         <label className="block text-sm font-medium">Deskripsi</label>
                         <textarea
                             className="w-full border-2 rounded-xl px-3 py-2 mt-1"
-
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                         />
@@ -74,45 +109,37 @@ export default function CreateCourseModal({ isOpen, onClose, onSuccess }) {
                         <div>
                             <label className="block text-sm font-medium">Major</label>
                             <input
-                                type="text"
                                 className="w-full border-2 rounded-xl px-3 py-2 mt-1"
                                 value={major}
                                 onChange={(e) => setMajor(e.target.value)}
                             />
-                            {errors.major && <p className="text-red-500 text-sm">{errors.major[0]}</p>}
                         </div>
+
                         <div>
                             <label className="block text-sm font-medium">Study Program</label>
                             <input
-                                type="text"
                                 className="w-full border-2 rounded-xl px-3 py-2 mt-1"
-
                                 value={studyProgram}
                                 onChange={(e) => setStudyProgram(e.target.value)}
                             />
-                            {errors.study_program && <p className="text-red-500 text-sm">{errors.study_program[0]}</p>}
                         </div>
+
                         <div>
                             <label className="block text-sm font-medium">Class</label>
                             <input
-                                type="text"
                                 className="w-full border-2 rounded-xl px-3 py-2 mt-1"
-
                                 value={className}
                                 onChange={(e) => setClassName(e.target.value)}
                             />
-                            {errors.class && <p className="text-red-500 text-sm">{errors.class[0]}</p>}
                         </div>
+
                         <div>
                             <label className="block text-sm font-medium">Batch</label>
                             <input
-                                type="text"
                                 className="w-full border-2 rounded-xl px-3 py-2 mt-1"
-
                                 value={batch}
                                 onChange={(e) => setBatch(e.target.value)}
                             />
-                            {errors.batch && <p className="text-red-500 text-sm">{errors.batch[0]}</p>}
                         </div>
                     </div>
 
@@ -120,15 +147,7 @@ export default function CreateCourseModal({ isOpen, onClose, onSuccess }) {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="
-      px-4 py-2
-      rounded-xl
-      border border-gray-300
-      text-gray-700
-      hover:bg-gray-100
-      transition-all
-      font-medium
-    "
+                            className="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 transition-all font-medium"
                         >
                             Batal
                         </button>
@@ -136,25 +155,15 @@ export default function CreateCourseModal({ isOpen, onClose, onSuccess }) {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="
-      px-4 py-2
-      rounded-xl
-      bg-blue-600
-      text-white
-      font-medium
-      shadow-sm
-      hover:bg-blue-700
-      disabled:bg-blue-300
-      disabled:cursor-not-allowed
-      transition-all
-    "
+                            className="px-4 py-2 rounded-xl bg-blue-600 text-white font-medium shadow-sm hover:bg-blue-700 disabled:bg-blue-300 transition-all"
                         >
-                            {loading ? "Membuat..." : "Buat Course"}
+                            {loading
+                                ? (mode === "create" ? "Membuat..." : "Menyimpan...")
+                                : (mode === "create" ? "Buat Course" : "Simpan Perubahan")}
                         </button>
                     </div>
-
                 </form>
             </DialogContent>
-        </Dialog >
+        </Dialog>
     );
 }

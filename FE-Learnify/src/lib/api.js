@@ -32,6 +32,26 @@ export async function addWeek(courseId, title) {
   }
 }
 
+export async function editCourse(courseId, title, description, studyProgram, className, batch) {
+  try {
+    const { data } = await baseAxios.put(`/courses/${courseId}`, { title, description, major, study_program: studyProgram, class: className, batch });
+    return data;
+  } catch (error) {
+    console.error('Failed edit course:', error);
+    throw error;
+  }
+}
+
+export async function deleteCourse(courseId) {
+  try {
+    const { data } = await baseAxios.delete(`/courses/${courseId}`);
+    return data;
+  } catch (error) {
+    console.error('Failed delete course:', error);
+    throw error;
+  }
+}
+
 export async function editWeek(courseId, title, weekId) {
   try {
     const { data } = await baseAxios.put(`/courses/${courseId}/weeks/${weekId}`, { title });

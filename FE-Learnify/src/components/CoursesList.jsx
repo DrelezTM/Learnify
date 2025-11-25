@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { fetchCourses, fetchCoursesStudent } from "@/lib/api";
 import { Button } from "./ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import CreateCourseModal from "./CreateCourseModal";
 import JoinCourseModal from "./JoinCourseModal";
+import CreateEditCourseModal from "./CreateEditCourseModal";
 
 export default function CoursesList() {
 
@@ -155,7 +155,8 @@ export default function CoursesList() {
                                 Buat Course
                             </Button>
 
-                            <CreateCourseModal
+                            <CreateEditCourseModal
+                                mode="create"
                                 isOpen={showModalCreate}
                                 onClose={() => setShowModalCreate(false)}
                                 onSuccess={reloadCourses}
