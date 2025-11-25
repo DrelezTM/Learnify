@@ -41,15 +41,26 @@ export async function fetchLogout() {
   }
 }
 
-export async function fetchProfile() {
+export async function fetchMyProfile() {
   try {
     const { data } = await baseAxios.get("/me");
+    return data;
+  } catch (error) {
+    console.error("Failed fetch my profile:", error);
+    throw error;
+  }
+}
+
+export async function fetchProfile(id) {
+  try {
+    const { data } = await baseAxios.get(`/user/show/${id}`);
     return data;
   } catch (error) {
     console.error("Failed fetch profile:", error);
     throw error;
   }
 }
+
 
 // export async function fetchLogin(email, password) {
 //   axios({

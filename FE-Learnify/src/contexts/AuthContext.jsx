@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { fetchProfile } from "@/lib/api";
+import { fetchMyProfile } from "@/lib/api";
 
 const AuthContext = createContext(null);
 
@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         async function loadUser() {
             try {
-                const res = await fetchProfile();
+                const res = await fetchMyProfile();
                 setUser(res.data);
             } catch (err) {
                 setUser(null);

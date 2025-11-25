@@ -3,8 +3,8 @@ import { useParams } from "react-router-dom";
 import { Plus, Settings, BookOpen, ChevronDown, FileText, Link, Trash2, RefreshCcw } from 'lucide-react';
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
-
-const currentUserId = 1;
+import { useAuth } from "@/contexts/AuthContext";
+import { fetchDetailCourse, fetchProfile } from "@/lib/api";
 
 const generateMockSyllabus = () => {
   const syllabus = [];
@@ -27,7 +27,6 @@ const generateMockSyllabus = () => {
   return syllabus;
 };
 
-// Data Mock course (Mengganti fetchDetailCourse)
 const mockcourseData = {
   id: "MK101",
   title: "Mata Kuliah Pendidikan Pancasila",
@@ -39,7 +38,6 @@ const mockcourseData = {
 };
 
 const SyllabusContent = ({ syllabus, isLecturer }) => {
-  // State untuk mengontrol pekan mana yang sedang terbuka (collapse/expand)
   const [openWeek, setOpenWeek] = useState(null);
 
   const toggleWeek = (week) => {
@@ -108,27 +106,45 @@ const SyllabusContent = ({ syllabus, isLecturer }) => {
 
 const DetailCourse = () => {
   const { id } = useParams();
+  const { user } = useAuth();
 
   const [course, setCourse] = useState(null);
+  const [lecturer, setLecturer] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const [tab, setTab] = useState("matkul");
 
-  const isLecturer = course && course.lecturer_id === currentUserId;
-
-
   useEffect(() => {
-    const loadDetail = () => {
-      setTimeout(() => {
-        setCourse(mockcourseData);
+    const loadData = async () => {
+      try {
+        setLoading(true);
+
+        const { data: courseData } = await fetchDetailCourse(id);
+        setCourse(courseData);
+
+        console.log(courseData)
+        if (courseData) {
+          const { data: lecturerData } = await fetchProfile(courseData.lecturer_id);
+          setLecturer(lecturerData);
+        }
+
+
+      } catch (error) {
+        console.error("Failed load detail:", error);
+      } finally {
         setLoading(false);
-      }, 800);
+      }
     };
-    loadDetail();
+
+    loadData();
   }, [id]);
 
   if (loading) return <p className="p-10 text-2xl font-semibold text-blue-600">Memuat Detail course...</p>;
+
   if (!course) return <p className="p-10 text-red-600 font-medium">Data course tidak ditemukan.</p>;
+
+  const isLecturer = user?.id === course.lecturer_id;
+
 
   return (
     <div className="p-8 space-y-8 max-w-6xl mx-auto">
@@ -144,7 +160,9 @@ const DetailCourse = () => {
 
           <div className="p-5 bg-purple-50 rounded-lg border border-purple-200">
             <p className="text-xs text-purple-700 font-medium uppercase tracking-wider">Dosen Pengajar</p>
-            <p className="text-2xl font-extrabold text-purple-900 mt-1">{course.lecturer_name}</p>
+            <p className="text-2xl font-extrabold text-purple-900 mt-1">
+              {lecturer?.name || "Nama dosen tidak ditemukan"}
+            </p>
           </div>
         </div>
       </Card>
@@ -156,7 +174,7 @@ const DetailCourse = () => {
           className={`font-semibold transition-all rounded-b-none ${tab === "matkul" ? "bg-blue-600 text-white hover:bg-blue-700" : "text-gray-600 hover:text-blue-600"}`}
         >
           <BookOpen size={18} className="mr-2" />
-          Materi course ({course.syllabus.length} Pekan)
+          {/* Materi course ({course.syllabus.length} Pekan) */}
         </Button>
 
         {isLecturer && (
@@ -173,7 +191,8 @@ const DetailCourse = () => {
 
       <Card className="p-6 shadow-xl rounded-t-none rounded-b-xl border border-t-0">
         {tab === "matkul" && (
-          <SyllabusContent syllabus={course.syllabus} isLecturer={isLecturer} />
+          <></>
+          // <SyllabusContent syllabus={course.syllabus} isLecturer={isLecturer} />
         )}
 
         {tab === "pengaturan" && isLecturer && (
