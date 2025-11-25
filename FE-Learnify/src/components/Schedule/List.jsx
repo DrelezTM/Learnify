@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Calendar, Clock, Plus, X, Trash2, ChevronLeft, ChevronRight, GripVertical } from "lucide-react";
+import { Calendar, Clock, Plus, X, Trash2, ChevronLeft, ChevronRight, GripVertical, Edit2 } from "lucide-react";
 
 export default function CalendarApp() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -17,6 +17,7 @@ export default function CalendarApp() {
   const [eventColor, setEventColor] = useState("#6366f1");
   const [draggedEvent, setDraggedEvent] = useState(null);
   const [draggedOverDate, setDraggedOverDate] = useState(null);
+  const [editingEventId, setEditingEventId] = useState(null);
 
   const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
   const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
@@ -75,19 +76,41 @@ export default function CalendarApp() {
     const endDate = eventEndDate ? new Date(eventEndDate) : new Date(selectedDate);
     endDate.setHours(parseInt(eh), parseInt(em));
     
-    setEvents([...events, { 
-      id: Date.now(), 
-      title: eventTitle, 
-      startDate: startDate,
-      endDate: endDate,
-      color: eventColor 
-    }]);
+    if (editingEventId) {
+      // Update existing event
+      setEvents(events.map(e => 
+        e.id === editingEventId 
+          ? { ...e, title: eventTitle, startDate: startDate, endDate: endDate, color: eventColor }
+          : e
+      ));
+      setEditingEventId(null);
+    } else {
+      // Add new event
+      setEvents([...events, { 
+        id: Date.now(), 
+        title: eventTitle, 
+        startDate: startDate,
+        endDate: endDate,
+        color: eventColor 
+      }]);
+    }
     
     setEventTitle("");
     setEventStartTime("10:00");
     setEventEndTime("11:00");
     setEventEndDate(null);
     setShowModal(false);
+  };
+
+  const editEvent = (event) => {
+    setEditingEventId(event.id);
+    setEventTitle(event.title);
+    setSelectedDate(new Date(event.startDate));
+    setEventEndDate(new Date(event.endDate));
+    setEventStartTime(event.startDate.toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" }));
+    setEventEndTime(event.endDate.toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" }));
+    setEventColor(event.color);
+    setShowModal(true);
   };
 
   const deleteEvent = (eventId) => {
@@ -106,6 +129,7 @@ export default function CalendarApp() {
 
   const handleDrop = (e, day) => {
     e.preventDefault();
+    e.stopPropagation();
     if (draggedEvent) {
       const oldStart = new Date(draggedEvent.startDate);
       const oldEnd = new Date(draggedEvent.endDate);
@@ -127,6 +151,13 @@ export default function CalendarApp() {
     }
   };
 
+  const handleDayClick = (day) => {
+    if (draggedEvent) return; // Don't open modal if dragging
+    setSelectedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
+    setEventEndDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
+    setShowModal(true);
+  };
+
   const renderCalendar = () => {
     const days = [];
     const renderedEvents = new Set();
@@ -142,11 +173,7 @@ export default function CalendarApp() {
       days.push(
         <div
           key={day}
-          onClick={() => {
-            setSelectedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
-            setEventEndDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
-            setShowModal(true);
-          }}
+          onClick={() => handleDayClick(day)}
           onDragOver={(e) => handleDragOver(e, day)}
           onDrop={(e) => handleDrop(e, day)}
           className={`aspect-square p-2 rounded-2xl cursor-pointer transition-all duration-300 group relative ${
@@ -326,12 +353,20 @@ export default function CalendarApp() {
                               )}
                             </div>
                           </div>
-                          <button
-                            onClick={() => deleteEvent(event.id)}
-                            className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-300 flex-shrink-0"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => editEvent(event)}
+                              className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all duration-300 flex-shrink-0"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => deleteEvent(event.id)}
+                              className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-300 flex-shrink-0"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     );
@@ -347,10 +382,17 @@ export default function CalendarApp() {
             <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-md transform transition-all animate-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  Tambah Event Baru
+                  {editingEventId ? "Edit Event" : "Tambah Event Baru"}
                 </h2>
                 <button 
-                  onClick={() => setShowModal(false)} 
+                  onClick={() => {
+                    setShowModal(false);
+                    setEditingEventId(null);
+                    setEventTitle("");
+                    setEventStartTime("10:00");
+                    setEventEndTime("11:00");
+                    setEventEndDate(null);
+                  }} 
                   className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-300"
                 >
                   <X className="w-6 h-6" />
@@ -445,8 +487,17 @@ export default function CalendarApp() {
                   onClick={addEvent}
                   className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-full shadow-lg shadow-blue-500/30 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 mt-6"
                 >
-                  <Plus className="w-5 h-5" />
-                  Tambah Event
+                  {editingEventId ? (
+                    <>
+                      <Edit2 className="w-5 h-5" />
+                      Update Event
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-5 h-5" />
+                      Tambah Event
+                    </>
+                  )}
                 </button>
               </div>
             </div>

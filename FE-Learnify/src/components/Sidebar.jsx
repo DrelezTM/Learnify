@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Menu, X, ChevronDown, ClipboardCheck, Calendar, MessageCircle, LogOut, Settings } from 'lucide-react';
+import { Home, Menu, X, ChevronDown, ClipboardCheck, Calendar, MessageCircle, LogOut, BookOpen } from 'lucide-react';
 import { fetchLogout } from '@/lib/api';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -150,24 +150,38 @@ export default function Sidebar() {
                 [&::-webkit-scrollbar-thumb]:rounded-full
                 [&::-webkit-scrollbar-thumb]:hover:bg-white/50`}
       >
-        <div className="flex items-center justify-between p-5 relative z-10">
-          {isSidebarOpen && (
-            <div className="flex items-center space-x-2 transition-all duration-300">
-              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-lg">
-                <span className="text-blue-600 font-bold text-lg">L</span>
+        <div className={`flex items-center p-5 relative z-10 ${isSidebarOpen ? 'justify-between' : 'justify-center'}`}>
+          {isSidebarOpen ? (
+            <>
+              <div className="flex items-center space-x-2 transition-all duration-300">
+                <div className="book-icon-container relative w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden group cursor-pointer transform transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:rotate-3">
+                  <div className="book-icon-shine absolute inset-0 pointer-events-none"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-indigo-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <BookOpen className="book-icon relative z-10 text-blue-600" size={22} strokeWidth={2.5} />
+                </div>
+                <h1 className="text-2xl font-bold text-white">Learnify</h1>
               </div>
-              <h1 className="text-2xl font-bold text-white">Learnify</h1>
-            </div>
-          )}
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="text-white hover:bg-white/20 p-2 rounded-lg 
+              <button
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="text-white hover:bg-white/20 p-2 rounded-lg 
+                          transition-all duration-300
+                          hover:rotate-90 hover:scale-110
+                          active:rotate-90 active:scale-95"
+              >
+                <X size={24} />
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="text-white hover:bg-white/20 p-2 rounded-lg 
                         transition-all duration-300
                         hover:rotate-90 hover:scale-110
                         active:rotate-90 active:scale-95"
-          >
-            {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+            >
+              <Menu size={24} />
+            </button>
+          )}
         </div>
 
         <nav className="flex-1 px-3 mt-2 space-y-2 relative z-10">
@@ -197,8 +211,8 @@ export default function Sidebar() {
                       : 'text-white hover:bg-white/20'
                     }`}
                 >
-                  <div className="flex items-center space-x-3 flex-1 min-w-0">
-                    <Icon size={20} className={`${isActive ? 'text-blue-600' : ''}`} />
+                  <div className={`flex items-center flex-1 min-w-0 ${isSidebarOpen ? 'space-x-3 justify-start' : 'justify-center'}`}>
+                    <Icon size={20} className={`${isActive ? 'text-blue-600' : ''} ${!isSidebarOpen ? 'mx-auto' : ''}`} />
                     {isSidebarOpen && <span className="font-medium">{item.name}</span>}
                   </div>
 
@@ -249,23 +263,17 @@ export default function Sidebar() {
         </nav>
 
         <div className="px-3 pb-3 space-y-2">
-          <button className="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-white/20 rounded-xl
+          <button onClick={handleLogout} className={`w-full flex items-center px-4 py-3 text-white hover:bg-red-500/30 rounded-xl
                         transition-all duration-300 ease-out
                         hover:translate-x-1.5 hover:scale-105
-                        active:translate-x-1 active:scale-95">
-            <Settings size={20} />
-            {isSidebarOpen && <span>Settings</span>}
-          </button>
-          <button onClick={handleLogout} className="w-full flex items-center space-x-3 px-4 py-3 text-white hover:bg-red-500/30 rounded-xl
-                        transition-all duration-300 ease-out
-                        hover:translate-x-1.5 hover:scale-105
-                        active:translate-x-1 active:scale-95">
+                        active:translate-x-1 active:scale-95
+                        ${isSidebarOpen ? 'space-x-3 justify-start' : 'justify-center'}`}>
             <LogOut size={20} />
             {isSidebarOpen && <span>Logout</span>}
           </button>
         </div>
 
-        {user && (
+        {user && isSidebarOpen && (
           <div className="p-4 mt-auto">
             <div className="flex items-center space-x-3 text-white bg-white/10 backdrop-blur-sm rounded-xl p-3 cursor-pointer
                         transition-all duration-300
@@ -273,12 +281,10 @@ export default function Sidebar() {
               <div className="w-11 h-11 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center font-bold">
                 {getInitials(user.name)}
               </div>
-              {isSidebarOpen && (
-                <div className="flex-1">
-                  <p className="text-sm font-semibold">{user.name}</p>
-                  <p className="text-xs text-blue-200 capitalize">{user.role}</p>
-                </div>
-              )}
+              <div className="flex-1">
+                <p className="text-sm font-semibold">{user.name}</p>
+                <p className="text-xs text-blue-200 capitalize">{user.role}</p>
+              </div>
             </div>
           </div>
         )}

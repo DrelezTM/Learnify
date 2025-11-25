@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import CourseListPage from "./pages/dashboard/CourseListPage";
 import LoginPage from "./pages/authentication/LoginPage";
-import RegisterPage from "./pages/authentication/RegisterPage";
 import ProtectedRoute from "./ProtectedRoute";
 import Schedule from "./components/Schedule/Calenderview";
 import SchedulePage from "./pages/dashboard/SchedulePage";
@@ -19,7 +18,7 @@ function App() {
         <Routes>
           {/* authentication */}
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/" element={<LoginPage />} />
 
           {/* protected routes */}
           <Route

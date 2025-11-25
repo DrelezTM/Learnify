@@ -39,10 +39,45 @@ const getFormattedDate = () => {
 // --- Komponen Header (Tanggal Sistem) ---
 const Header = () => {
     return (
-        <header className="py-10 px-12 bg-white border-b">
-            <h1 className="text-3xl font-bold text-gray-800">Absensi Kedatangan</h1>
-            {/* Menggunakan getFormattedDate() untuk menampilkan tanggal hari ini */}
-            <p className="text-gray-500 mt-1">Hari Ini: **{getFormattedDate()}**</p>
+        <header className="py-8 px-10 bg-gradient-to-r from-blue-50 to-white border-b border-blue-100 shadow-sm">
+            <h1 className="text-3xl font-bold text-gray-800 animate-fade-in">
+                Absensi Kedatangan
+            </h1>
+            <p className="text-gray-600 mt-2 animate-slide-up">
+                Hari Ini: <span className="font-medium text-gray-800">{getFormattedDate()}</span>
+            </p>
+            
+            <style jsx>{`
+                @keyframes fade-in {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-10px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                @keyframes slide-up {
+                    from {
+                        opacity: 0;
+                        transform: translateY(10px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                .animate-fade-in {
+                    animation: fade-in 0.6s ease-out;
+                }
+                
+                .animate-slide-up {
+                    animation: slide-up 0.6s ease-out 0.2s backwards;
+                }
+            `}</style>
         </header>
     );
 };
