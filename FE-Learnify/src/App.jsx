@@ -9,6 +9,8 @@ import AttendancePage from "./pages/dashboard/AttendancePage";
 import Home from "./pages/dashboard/Home";
 import { AuthProvider } from "./contexts/AuthContext";
 import CourseDetailPage from "./pages/dashboard/CourseDetailPage";
+import MaterialDetailPage from "./pages/dashboard/MaterialDetailPage";
+import AssignmentDetailPage from "./pages/dashboard/AssignmentDetailPage";
 
 function App() {
   return (
@@ -30,9 +32,7 @@ function App() {
           <Route
             path="/Schedule"
             element={
-
               <SchedulePage />
-
             }
           />
 
@@ -48,9 +48,21 @@ function App() {
           <Route
             path="/courses/:id"
             element={
-
               <CourseDetailPage />
+            }
+          />
 
+          <Route
+            path="/courses/:id/:weekId/material/:materialId"
+            element={
+              <MaterialDetailPage />
+            }
+          />
+
+          <Route
+            path="/courses/:id/:weekId/assignment/:assignmentId"
+            element={
+              <AssignmentDetailPage />
             }
           />
 

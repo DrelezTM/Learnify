@@ -60,6 +60,29 @@ export async function addAssignments(courseId, weekId, formData) {
   }
 }
 
+export async function showMaterial(courseId, weekId, materialId) {
+  try {
+    const { data } = await baseAxios.get(
+      `/courses/${courseId}/weeks/${weekId}/materials/${materialId}`,
+    );
+    return data;
+  } catch (error) {
+    console.error("Failed show material:", error);
+    throw error;
+  }
+}
+
+export async function showAssignment(courseId, weekId, assignmentId) {
+  try {
+    const { data } = await baseAxios.get(
+      `/courses/${courseId}/weeks/${weekId}/assignments/${assignmentId}`,
+    );
+    return data;
+  } catch (error) {
+    console.error("Failed show assignment:", error);
+    throw error;
+  }
+}
 
 
 // Student

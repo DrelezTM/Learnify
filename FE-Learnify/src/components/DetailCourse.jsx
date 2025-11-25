@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Plus, Settings, BookOpen, ChevronDown, FileText, Link, Trash2, RefreshCcw } from 'lucide-react';
+import { Plus, Settings, BookOpen, ChevronDown, FileText, LinkIcon, Trash2, RefreshCcw } from 'lucide-react';
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,7 +19,7 @@ export default function DetailCourse() {
 
   const [loading, setLoading] = useState(true);
 
-  const [tab, setTab] = useState("matkul");
+  const [tab, setTab] = useState("pekan");
 
   const [showModalAddWeek, setShowModalAddWeek] = useState(false)
 
@@ -125,12 +125,12 @@ export default function DetailCourse() {
 
       <div className="flex gap-2 pt-2 border-b border-gray-200">
         <Button
-          variant={tab === "matkul" ? "default" : "ghost"}
-          onClick={() => setTab("matkul")}
+          variant={tab === "pekan" ? "default" : "ghost"}
+          onClick={() => setTab("pekan")}
           className={`
             font-semibold rounded-b-none px-6 py-2
             transition-all
-            ${tab === "matkul"
+            ${tab === "pekan"
               ? "bg-blue-600 text-white shadow-md hover:bg-blue-700"
               : "text-gray-600 hover:text-blue-600"
             }
@@ -168,8 +168,7 @@ export default function DetailCourse() {
         transition-all
       ">
 
-        {/* TAB 1: MATKUL (belum dipakai) */}
-        {tab === "matkul" && (
+        {tab === "pekan" && (
           <>
             {isOwner && (
               <>
@@ -188,7 +187,6 @@ export default function DetailCourse() {
           </>
         )}
 
-        {/* TAB 2: PENGATURAN */}
         {tab === "pengaturan" && isOwner && (
           <div className="space-y-8">
             <h2 className="text-3xl font-bold text-gray-800 border-b pb-2">
@@ -298,14 +296,15 @@ const WeeksList = ({ weeks, isOwner, course, reloadWeeks }) => {
 
                   <div className="space-y-3">
                     {week.materials?.map((mat) => (
-                      <div
+                      <a
+                        href={`/courses/${course.id}/${week.id}/material/${mat.id}`}
                         key={mat.id}
-                        className="p-4 border rounded-xl shadow-sm hover:shadow-md transition-all"
+                        className="p-4 block border rounded-xl shadow-sm hover:shadow-md transition-all"
                       >
                         <h5 className="font-semibold text-gray-800">
                           {mat.title}
                         </h5>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-6">
                           {mat.content}
                         </p>
 
@@ -318,12 +317,12 @@ const WeeksList = ({ weeks, isOwner, course, reloadWeeks }) => {
                                 target="_blank"
                                 className="text-blue-600 underline text-sm flex items-center gap-1"
                               >
-                                <Link size={14} /> {file.file_name}
+                                <LinkIcon size={14} /> {file.file_name}
                               </a>
                             ))}
                           </div>
                         )}
-                      </div>
+                      </a>
                     ))}
                   </div>
                 </div>
@@ -336,21 +335,22 @@ const WeeksList = ({ weeks, isOwner, course, reloadWeeks }) => {
 
                   {week.assignments?.length === 0 && (
                     <p className="text-sm italic text-gray-500">
-                      Belum ada assignment untuk pekan ini.
+                      Belum ada tugas untuk pekan ini.
                     </p>
                   )}
 
                   <div className="space-y-3">
                     {week.assignments?.map((asg) => (
-                      <div
+                      <a
+                        href={`/courses/${course.id}/${week.id}/assignment/${asg.id}`}
                         key={asg.id}
-                        className="p-4 border rounded-xl shadow-sm hover:shadow-md transition-all"
+                        className="p-4 border rounded-xl shadow-sm block hover:shadow-md transition-all"
                       >
                         <h5 className="font-semibold text-gray-800">
                           {asg.title}
                         </h5>
 
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-6">
                           {asg.description}
                         </p>
 
@@ -372,7 +372,7 @@ const WeeksList = ({ weeks, isOwner, course, reloadWeeks }) => {
                             ))}
                           </div>
                         )}
-                      </div>
+                      </a>
                     ))}
                   </div>
                 </div>

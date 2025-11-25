@@ -76,8 +76,8 @@ export default function AddWeekContentModal({ isOpen, onClose, courseId, weekId,
                             onChange={(e) => setType(e.target.value)}
                             className="w-full border rounded-xl px-3 py-2"
                         >
-                            <option value="material">Material</option>
-                            <option value="assignment">Assignment</option>
+                            <option value="material">Materi</option>
+                            <option value="assignment">Tugas</option>
                         </select>
                     </div>
 
