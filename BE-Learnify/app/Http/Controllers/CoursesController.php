@@ -30,7 +30,7 @@ class CoursesController extends Controller
 
     public function show(Request $request, $id)
     {
-        $class = Course::with('weeks')->find($id);
+        $class = Course::with(['weeks.assignments', 'weeks.materials'])->find($id);
 
         if (! $class) {
             return response()->json([

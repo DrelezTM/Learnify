@@ -15,10 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('assignment_id')->constrained('assignments', 'id')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users', 'id')->onDelete('cascade');
-            $table->string('file_path');
             $table->timestamp('submitted_at');
-            $table->bigInteger('grade');
-            $table->text('feedback');
+            $table->bigInteger('grade')->nullable();
+            $table->text('feedback')->nullable();
             $table->timestamps();
         });
     }
