@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ListKelasPage from "./pages/dashboard/ListKelasPage";
 import LoginPage from "./pages/authentication/LoginPage";
-import RegisterPage from "./pages/authentication/RegisterPage";
 import Detail from "./components/DetailCourse";
 import ProtectedRoute from "./ProtectedRoute";
 import Schedule from "./components/Schedule/Calenderview";
@@ -12,60 +11,59 @@ import Home from "./pages/dashboard/Home";
 function App() {
   return (
     <BrowserRouter>
+  <Routes>
+    {/* authentication */}
+    <Route path="/" element={<LoginPage />} />
 
-      
-      <Routes>
-        {/* authentication */}
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
 
-        {/* protected routes */}
-        <Route
-          path="/courses"
-          element={
-           
-              <ListKelasPage />
-          
-          }
-        />
+    {/* protected routes */}
+    <Route
+      path="/courses"
+      element={
+        <ProtectedRoute>
+          <ListKelasPage />
+        </ProtectedRoute>
+      }
+    />
 
-        <Route
-          path="/Schedule"
-          element={
-           
-              <SchedulePage />
-          
-          }
-        />
+    <Route
+      path="/Schedule"
+      element={
+        <ProtectedRoute>
+          <SchedulePage />
+        </ProtectedRoute>
+      }
+    />
 
-        <Route 
-          path="/home"
-          element={
-            <Home />
-          }  
-        />
+    <Route
+      path="/home"
+      element={
+        <ProtectedRoute>
+          <Home />
+        </ProtectedRoute>
+      }
+    />
 
-   
+    <Route
+      path="/courses/:id"
+      element={
+        <ProtectedRoute>
+          <Detail />
+        </ProtectedRoute>
+      }
+    />
 
-        <Route
-          path="/courses/:id"
-          element={
-          
-              <Detail />
-          
-          }
-        />
+    <Route
+      path="/attendance"
+      element={
+        <ProtectedRoute>
+          <AttendancePage />
+        </ProtectedRoute>
+      }
+    />
+  </Routes>
+</BrowserRouter>
 
-        <Route
-          path="/attendance"
-          element={
-          
-              <AttendancePage />
-          
-          }
-        />
-      </Routes>
-    </BrowserRouter>
   );
 }
 

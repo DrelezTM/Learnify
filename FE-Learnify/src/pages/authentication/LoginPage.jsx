@@ -86,13 +86,6 @@ function LoginPage() {
                         Masuk
                     </button>
 
-                    <button
-                        onClick={() => navigate("/register")}
-                        className="w-full py-3.5 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-xl transition-all mt-3"
-                    >
-                        Buat Akun
-                    </button>
-
                 </div>
             </div>
         </div>
