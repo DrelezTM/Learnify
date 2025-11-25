@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('material_files', function (Blueprint $table) {
             $table->id();
             $table->foreignId('material_id')->constrained('materials', 'id')->onDelete('cascade');
+            $table->string('file_name');
             $table->string('file_path');
             $table->timestamps();
         });

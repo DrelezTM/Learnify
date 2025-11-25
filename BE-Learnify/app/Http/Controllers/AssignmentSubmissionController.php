@@ -57,10 +57,12 @@ class AssignmentSubmissionController extends Controller
 
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
+                $filename = $file->getClientOriginalName();
                 $path = $file->store('submission', 'public');
 
                 SubmissionFile::create([
                     'submission_id' => $createAssignmentSubmission->id,
+                    'file_name' => $filename,
                     'file_path' => $path
                 ]);
             }
