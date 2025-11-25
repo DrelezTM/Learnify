@@ -58,7 +58,7 @@ export default function DetailCourse() {
   const isLecturer = user?.id === course.lecturer_id;
 
   return (
-    <div className="p-8 space-y-8 max-w-6xl mx-auto">
+    <div className="p-8 space-y-8 w-full mx-16">
 
       {/* HEADER CARD */}
       <Card className="

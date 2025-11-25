@@ -12,6 +12,16 @@ export async function fetchCourses() {
   }
 }
 
+export async function createCourse(title, description, major, studyProgram, className, batch) {
+  try {
+    const { data } = await baseAxios.post(`/courses`, { title, description, major, study_program: studyProgram, class: className, batch });
+    return data;
+  } catch (error) {
+    console.error('Failed create course:', error);
+    throw error;
+  }
+}
+
 export async function fetchCoursesStudent() {
   try {
     const { data } = await baseAxios.get(`/courses/me`);
