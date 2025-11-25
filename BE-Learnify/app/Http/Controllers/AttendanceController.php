@@ -6,39 +6,30 @@ use Carbon\Carbon;
 use App\Models\AttendanceRecord;
 use App\Models\AttendanceSession;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // Tambahkan ini
+use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
 {
     public function today(Request $request)
     {
         $today = Carbon::now()->toDateString();
-
-        // 1. Ambil ID User yang sedang login (dari Token)
-        // Pastikan route ini dilindungi middleware 'auth:sanctum' di api.php
-        $userId = $request->user() ? $request->user()->id : null;
-        
-        // Jika user_id null (misal testing tanpa token), coba ambil dari request query (opsional)
-        if (!$userId && $request->has('user_id')) {
-            $userId = $request->user_id;
-        }
+        $userId = $request->user() ? $request->user()->id : $request->user_id;
 
         $sessions = AttendanceSession::with(['course.lecturer'])
             ->whereDate('start_time', $today)
             ->get();
 
-        // 2. MODIFIKASI DATA: Cek apakah user sudah hadir di sesi ini?
         $sessions->transform(function ($session) use ($userId) {
-            // Default belum hadir
-            $session->is_attended = false;
+            $session->attendance_status = null;
 
             if ($userId) {
-                // Cek ke tabel attendance_records
-                $exists = AttendanceRecord::where('session_id', $session->id)
+                $record = AttendanceRecord::where('session_id', $session->id)
                     ->where('user_id', $userId)
-                    ->exists();
+                    ->first();
                 
-                $session->is_attended = $exists;
+                if ($record) {
+                    $session->attendance_status = $record->status; 
+                }
             }
 
             return $session;
@@ -46,42 +37,62 @@ class AttendanceController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Today attendance sessions',
             'data' => $sessions
         ], 200);
     }
 
     public function hadir(Request $request)
     {
-        // Validasi agar user tidak bisa absen 2x (Double check di backend)
-        $validated = $request->validate([
+        $request->validate([
             'session_id' => 'required|exists:attendance_sessions,id',
             'user_id'    => 'required|exists:users,id',
         ]);
 
-        // Cek apakah sudah pernah absen sebelumnya?
-        $exists = AttendanceRecord::where('session_id', $request->session_id)
+        $existing = AttendanceRecord::where('session_id', $request->session_id)
             ->where('user_id', $request->user_id)
-            ->exists();
+            ->first();
 
-        if ($exists) {
+        if ($existing) {
             return response()->json([
                 'success' => false,
-                'message' => 'Anda sudah melakukan presensi untuk sesi ini.',
-            ], 422); // 422 Unprocessable Entity
+                'message' => 'Anda sudah melakukan presensi (Status: ' . $existing->status . ')',
+            ], 422);
+        }
+
+        $session = AttendanceSession::findOrFail($request->session_id);
+        $now = Carbon::now(); 
+        
+        $startTime = Carbon::parse($session->start_time);
+        $endTime   = Carbon::parse($session->end_time);
+        $lateThreshold = $startTime->copy()->addMinutes(15); 
+
+        if ($now->lessThan($startTime)) {
+            return response()->json(['message' => 'Kelas belum dimulai.'], 422);
+        } 
+        elseif ($now->greaterThan($endTime)) {
+            $status = 'absent';
+            $message = 'Waktu habis. Anda tercatat sebagai Alpa.';
+        } 
+        elseif ($now->greaterThan($lateThreshold)) {
+            $status = 'late';
+            $message = 'Presensi berhasil (Terlambat).';
+        } 
+        else {
+            $status = 'present';
+            $message = 'Presensi berhasil.';
         }
 
         $record = AttendanceRecord::create([
             'session_id'     => $request->session_id,
             'user_id'        => $request->user_id,
-            'status'         => 'present',
-            'checked_in_at'  => now(),
+            'status'         => $status, 
+            'checked_in_at'  => $now,
             'notes'          => ''
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Attendance recorded',
+            'message' => $message,
             'data' => $record
         ], 201);
     }

@@ -8,23 +8,20 @@ const AttendanceTable = () => {
 
     const [todayCourses, setTodayCourses] = useState([]);
 
-    // HELPER: Get User ID
     const getUserId = () => {
         const rawId = localStorage.getItem("user_id");
         if (rawId) return rawId;
         const userStr = localStorage.getItem("user");
         if (userStr) {
-            try { return JSON.parse(userStr).id || JSON.parse(userStr).user_id; } 
+            try { return JSON.parse(userStr).id || JSON.parse(userStr).user_id; }
             catch (e) { return null; }
         }
         return null;
     };
 
-    // Fungsi Fetch Data dipisah agar bisa dipanggil ulang (Re-fetch)
     const fetchCourses = () => {
-        // Kita kirim user_id via query param jaga-jaga jika auth token bermasalah
         const uid = getUserId();
-        
+
         baseAxios.get(`/attendance/today?user_id=${uid}`)
             .then(res => {
                 setTodayCourses(
@@ -36,21 +33,21 @@ const AttendanceTable = () => {
                         jam: `${session.start_time.slice(11, 16)} - ${session.end_time.slice(11, 16)}`,
                         lokasi: session.location ?? "-",
                         jenisPertemuan: session.mode ?? "-",
+
+                        status: session.attendance_status, 
                         
-                        // INI YANG PENTING: Baca status dari Laravel
-                        is_attended: session.is_attended 
+                        start_time_full: session.start_time,
+                        end_time_full: session.end_time
                     }))
                 );
             })
             .catch(err => console.error(err));
     };
 
-    // Fetch data saat halaman pertama kali dibuka
     useEffect(() => {
         fetchCourses();
     }, []);
 
-    // Fungsi submit presensi
     const handleAttend = async (sessionId) => {
         const currentUserId = getUserId();
 
@@ -60,25 +57,74 @@ const AttendanceTable = () => {
         }
 
         try {
-            await attendSession(sessionId, currentUserId);
-            alert("Presensi berhasil!");
-            
-            // UPDATE OTOMATIS: Panggil data terbaru dari server agar tombol berubah
-            fetchCourses(); 
+            const res = await attendSession(sessionId, currentUserId);
+            alert(res.message || "Presensi berhasil!");
+            fetchCourses();
 
         } catch (err) {
             console.error("Attendance Error:", err);
-            
-            // Handle jika backend bilang "sudah absen"
             const msg = err.response?.data?.message || "Gagal melakukan presensi";
-            
-            if (msg.includes("sudah melakukan presensi")) {
-                alert("Info: Anda sudah absen sebelumnya.");
-                fetchCourses(); // Refresh tombol
-            } else {
-                alert(`Gagal: ${msg}`);
-            }
+            alert(`Gagal: ${msg}`);
+            fetchCourses(); 
         }
+    };
+
+    const renderStatus = (course) => {
+        const now = new Date();
+        const startTime = new Date(course.start_time_full);
+        const endTime = new Date(course.end_time_full);
+
+        if (course.status) {
+            const statusStyles = {
+                'present': 'bg-green-100 text-green-700 border-green-200',
+                'late':    'bg-yellow-100 text-yellow-700 border-yellow-200',
+                'absent':  'bg-red-100 text-red-700 border-red-200',
+            };
+            
+            let label = course.status.toUpperCase();
+            if(course.status === 'present') label = "HADIR";
+            if(course.status === 'late') label = "TERLAMBAT";
+            if(course.status === 'absent') label = "ALPA";
+
+            const style = statusStyles[course.status] || 'bg-gray-100 text-gray-700';
+
+            return (
+                <div className={`w-fit py-5 px-6 font-semibold rounded-xl border ${style} flex items-center justify-center mx-auto`}>
+                    {label}
+                </div>
+            );
+        }
+
+        if (now > endTime) {
+            return (
+                <Button
+                    disabled
+                    className="w-fit py-5 px-6 bg-red-100 text-red-500 border border-red-200 font-semibold rounded-xl cursor-not-allowed hover:bg-red-100"
+                >
+                    SESI BERAKHIR
+                </Button>
+            );
+        }
+
+        if (now < startTime) {
+            return (
+                <Button
+                    disabled
+                    className="w-fit py-5 px-6 bg-gray-200 text-gray-500 font-semibold rounded-xl cursor-not-allowed border border-gray-300"
+                >
+                    BELUM MULAI
+                </Button>
+            );
+        }
+
+        return (
+            <Button
+                onClick={() => handleAttend(course.session_id)}
+                className="w-fit py-5 px-6 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-200"
+            >
+                HADIR
+            </Button>
+        );
     };
 
     return (
@@ -118,26 +164,7 @@ const AttendanceTable = () => {
                                 </TableCell>
 
                                 <TableCell className="text-center">
-                                    {/* LOGIKA TAMPILAN TOMBOL */}
-                                    {course.is_attended ? (
-                                        // OPSI 1: Tombol Disabled
-                                        <Button
-                                            disabled
-                                            className="w-fit py-5 px-6 bg-gray-300 text-gray-500 font-semibold rounded-xl cursor-not-allowed border border-gray-200"
-                                        >
-                                            SUDAH HADIR
-                                        </Button>
-
-                                        // OPSI 2: Jika ingin tombol HILANG TOTAL, hapus kode Button di atas dan biarkan kosong:
-                                        // null 
-                                    ) : (
-                                        <Button
-                                            onClick={() => handleAttend(course.session_id)}
-                                            className="w-fit py-5 px-6 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-200"
-                                        >
-                                            HADIR
-                                        </Button>
-                                    )}
+                                    {renderStatus(course)}
                                 </TableCell>
 
                             </TableRow>
