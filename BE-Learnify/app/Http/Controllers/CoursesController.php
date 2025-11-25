@@ -19,7 +19,7 @@ class CoursesController extends Controller
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
         ], 403);
 
-        $classes = Course::where('lecturer_id', Auth::id())->all();
+        $classes = Course::where('lecturer_id', Auth::id())->get();
 
         return response()->json([
             'success' => true,
@@ -30,7 +30,7 @@ class CoursesController extends Controller
 
     public function show(Request $request, $id)
     {
-        $class = Course::with('weeks')->find($id);
+        $class = Course::with(['weeks.assignments', 'weeks.materials'])->find($id);
 
         if (! $class) {
             return response()->json([

@@ -13,4 +13,12 @@ class Assignment extends Model
         'description',
         'deadline',
     ];
+
+    public function files() {
+        return $this->hasMany(AssignmentFile::class);
+    }
+
+    public function week() {
+        return $this->belongsTo(Week::class);
+    }
 }
