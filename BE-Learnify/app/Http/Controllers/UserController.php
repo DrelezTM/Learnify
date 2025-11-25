@@ -166,4 +166,23 @@ class UserController extends Controller
             'message' => 'User successfully logged out',
         ], 200);
     }
+
+    public function me(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated'
+            ], 401);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User profile retrieved successfully',
+            'data' => $user
+        ], 200);
+    }
+
 }

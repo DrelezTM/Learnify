@@ -19,6 +19,7 @@ Route::prefix('api')->group(function() {
     Route::post('/login', [ UserController::class, 'login' ]);
     Route::post('/register', [ UserController::class, 'register' ])->middleware('auth:sanctum');
     Route::delete('/logout', [ UserController::class, 'logout' ])->middleware('auth:sanctum');
+    Route::get('/me', [ UserController::class, 'me' ])->middleware('auth:sanctum');
 
     Route::post('/courses/{id}/join', [ EnrollmentController::class, 'enrollCourse' ])->middleware('auth:sanctum');
     Route::delete('/courses/{id}/leave', [ EnrollmentController::class, 'unenrollCourse' ])->middleware('auth:sanctum');

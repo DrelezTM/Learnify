@@ -41,6 +41,16 @@ export async function fetchLogout() {
   }
 }
 
+export async function fetchProfile() {
+  try {
+    const { data } = await baseAxios.get("/me");
+    return data;
+  } catch (error) {
+    console.error("Failed fetch profile:", error);
+    throw error;
+  }
+}
+
 // export async function fetchLogin(email, password) {
 //   axios({
 //     url: `${API_BASE}/api/login`,

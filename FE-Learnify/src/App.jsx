@@ -8,64 +8,65 @@ import Schedule from "./components/Schedule/Calenderview";
 import SchedulePage from "./pages/dashboard/SchedulePage";
 import AttendancePage from "./pages/dashboard/AttendancePage";
 import Home from "./pages/dashboard/Home";
+import { AuthProvider } from "./contexts/AuthContext";
 
 function App() {
   return (
-    <BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* authentication */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
-      
-      <Routes>
-        {/* authentication */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+          {/* protected routes */}
+          <Route
+            path="/courses"
+            element={
 
-        {/* protected routes */}
-        <Route
-          path="/courses"
-          element={
-           
               <ListKelasPage />
-          
-          }
-        />
 
-        <Route
-          path="/Schedule"
-          element={
-           
+            }
+          />
+
+          <Route
+            path="/Schedule"
+            element={
+
               <SchedulePage />
-          
-          }
-        />
 
-        <Route 
-          path="/home"
-          element={
-            <Home />
-          }  
-        />
+            }
+          />
 
-   
+          <Route
+            path="/home"
+            element={
+              <Home />
+            }
+          />
 
-        <Route
-          path="/courses/:id"
-          element={
-          
+
+
+          <Route
+            path="/courses/:id"
+            element={
+
               <Detail />
-          
-          }
-        />
 
-        <Route
-          path="/attendance"
-          element={
-          
+            }
+          />
+
+          <Route
+            path="/attendance"
+            element={
+
               <AttendancePage />
-          
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

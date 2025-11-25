@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Home, Menu, X, ChevronDown, ClipboardCheck, Calendar, MessageCircle, LogOut, Settings } from 'lucide-react';
 import { fetchLogout } from '@/lib/api';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { getInitials } from '@/lib/utils';
 
 export default function Sidebar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -11,6 +13,8 @@ export default function Sidebar() {
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { user } = useAuth()
 
   const menuItems = [
     {
@@ -26,10 +30,10 @@ export default function Sidebar() {
     {
       name: 'Schedule',
       icon: Calendar,
-      href: '/schedule', 
-      
+      href: '/schedule',
+
     },
-   
+
   ];
 
   // --- Efek untuk Mengatur Menu Aktif berdasarkan URL ---
@@ -52,7 +56,7 @@ export default function Sidebar() {
         const activeSub = activeItem.submenu.find(sub => sub.href === currentPath);
         if (activeSub) {
           setActiveSubmenu(activeSub.name);
-          setOpenDropdown(activeItem.name); 
+          setOpenDropdown(activeItem.name);
         } else {
           setActiveSubmenu('');
         }
@@ -83,7 +87,7 @@ export default function Sidebar() {
 
   const handleSubmenuClick = (sub) => {
     setActiveSubmenu(sub.name);
-    navigate(sub.href); 
+    navigate(sub.href);
   };
 
   const handleLogout = async () => {
@@ -176,7 +180,7 @@ export default function Sidebar() {
             return (
               <div key={item.name} onClick={(e) => {
                 e.preventDefault();
-                handleMenuClick(item); 
+                handleMenuClick(item);
               }}
               >
                 <a
@@ -262,21 +266,23 @@ export default function Sidebar() {
           </button>
         </div>
 
-        <div className="p-4 mt-auto">
-          <div className="flex items-center space-x-3 text-white bg-white/10 backdrop-blur-sm rounded-xl p-3 cursor-pointer
+        {user && (
+          <div className="p-4 mt-auto">
+            <div className="flex items-center space-x-3 text-white bg-white/10 backdrop-blur-sm rounded-xl p-3 cursor-pointer
                         transition-all duration-300
                         hover:scale-105 hover:bg-white/15">
-            <div className="w-11 h-11 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center font-bold">
-              JD
-            </div>
-            {isSidebarOpen && (
-              <div className="flex-1">
-                <p className="text-sm font-semibold">John Doe</p>
-                <p className="text-xs text-blue-200">Student</p>
+              <div className="w-11 h-11 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl flex items-center justify-center font-bold">
+                {getInitials(user.name)}
               </div>
-            )}
+              {isSidebarOpen && (
+                <div className="flex-1">
+                  <p className="text-sm font-semibold">{user.name}</p>
+                  <p className="text-xs text-blue-200 capitalize">{user.role}</p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </>
   );

@@ -25,7 +25,7 @@ class CourseFactory extends Factory
             'description' => $this->faker->paragraph(),
             'code' => strtoupper($this->faker->lexify('??')) . '-' . rand(1, 9) . '-' . rand(2020, 2025),
             'enrollment_key' => Str::upper(Str::random(8)),
-            'lecturer_id' => 1,  // ID user dosen (atau random),
+            'lecturer_id' => 2,  // ID lcetrurer,
             'slug' => Str::slug($title) . '-' . $this->faker->lexify('??'),
         ];
 
