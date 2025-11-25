@@ -22,3 +22,19 @@ export const getInitials = (name) => {
     .join("")
     .toUpperCase();
 };
+
+
+export const formatDeadline = (dateString) => {
+  if (!dateString) return "-";
+
+  const date = new Date(dateString);
+
+  return date.toLocaleString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}

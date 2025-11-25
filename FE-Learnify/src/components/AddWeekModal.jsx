@@ -57,14 +57,14 @@ export default function AddWeekModal({ courseId, isOpen, onClose, onSuccess }) {
                             type="button"
                             onClick={onClose}
                             className="
-      px-4 py-2
-      rounded-xl
-      border border-gray-300
-      text-gray-700
-      hover:bg-gray-100
-      transition-all
-      font-medium
-    "
+                                px-4 py-2
+                                rounded-xl
+                                border border-gray-300
+                                text-gray-700
+                                hover:bg-gray-100
+                                transition-all
+                                font-medium
+                            "
                         >
                             Batal
                         </button>
@@ -73,17 +73,17 @@ export default function AddWeekModal({ courseId, isOpen, onClose, onSuccess }) {
                             type="submit"
                             disabled={loading}
                             className="
-      px-4 py-2
-      rounded-xl
-      bg-blue-600
-      text-white
-      font-medium
-      shadow-sm
-      hover:bg-blue-700
-      disabled:bg-blue-300
-      disabled:cursor-not-allowed
-      transition-all
-    "
+                                px-4 py-2
+                                rounded-xl
+                                bg-blue-600
+                                text-white
+                                font-medium
+                                shadow-sm
+                                hover:bg-blue-700
+                                disabled:bg-blue-300
+                                disabled:cursor-not-allowed
+                                transition-all
+                            "
                         >
                             {loading ? "Menambah..." : "Tambah"}
                         </button>

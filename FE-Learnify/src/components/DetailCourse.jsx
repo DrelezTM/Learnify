@@ -6,6 +6,8 @@ import { Card } from "./ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { fetchDetailCourse, fetchProfile } from "@/lib/api";
 import AddWeekModal from "./AddWeekModal";
+import AddWeekContentModal from "./AddWeekContentModal";
+import { formatDeadline } from "@/lib/utils";
 
 export default function DetailCourse() {
   const { id } = useParams();
@@ -20,6 +22,8 @@ export default function DetailCourse() {
   const [tab, setTab] = useState("matkul");
 
   const [showModalAddWeek, setShowModalAddWeek] = useState(false)
+
+  console.log(weeks)
 
   useEffect(() => {
     const loadData = async () => {
@@ -46,19 +50,6 @@ export default function DetailCourse() {
   }, [id]);
 
   const isOwner = user?.id === course?.lecturer_id;
-
-  const reloadWeeks = async () => {
-    setLoading(true)
-
-    try {
-      const { data: courseData } = await fetchDetailCourse(id);
-      setWeeks(courseData.weeks)
-    } catch (err) {
-      console.error("Reload failed:", err)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   if (loading) {
     return (
@@ -193,7 +184,7 @@ export default function DetailCourse() {
               </>
             )}
 
-            <WeeksList weeks={weeks} isOwner={isOwner} />
+            <WeeksList course={course} weeks={weeks} isOwner={isOwner} />
           </>
         )}
 
@@ -238,8 +229,10 @@ export default function DetailCourse() {
   );
 }
 
-const WeeksList = ({ weeks, isOwner }) => {
+const WeeksList = ({ weeks, isOwner, course, reloadWeeks }) => {
   const [openWeek, setOpenWeek] = useState(null);
+  const [showModalWeekContent, setShowModalWeekContent] = useState(false);
+  const [selectedWeekId, setSelectedWeekId] = useState(null);
 
   const toggleWeek = (weekId) => {
     setOpenWeek(openWeek === weekId ? null : weekId);
@@ -247,15 +240,15 @@ const WeeksList = ({ weeks, isOwner }) => {
 
   return (
     <div className="space-y-3 mt-5">
-      {weeks.map((week, index) => {
+      {weeks.map((week) => {
         const isOpen = openWeek === week.id;
 
         return (
           <div
             key={week.id}
-            className="border rounded-xl overflow-hidden shadow-sm"
+            className="border rounded-xl overflow-hidden shadow-sm bg-white"
           >
-            {/* HEADER PEKAN */}
+
             <div
               className={`flex items-center justify-between p-4 cursor-pointer transition-colors ${isOpen ? "bg-blue-50" : "bg-gray-50 hover:bg-gray-100"
                 }`}
@@ -271,8 +264,10 @@ const WeeksList = ({ weeks, isOwner }) => {
                     className="ml-3 h-8 w-8 text-blue-600 hover:bg-blue-200"
                     onClick={(e) => {
                       e.stopPropagation();
+                      setSelectedWeekId(week.id);
+                      setShowModalWeekContent(true);
                     }}
-                    title={`Tambah Materi / Assignment`}
+                    title="Tambah Materi / Assignment"
                   >
                     <Plus size={16} />
                   </Button>
@@ -286,17 +281,127 @@ const WeeksList = ({ weeks, isOwner }) => {
               />
             </div>
 
-            {/* BODY PEKAN */}
             {isOpen && (
-              <div className="p-4 pl-8 bg-white border-t text-gray-700">
-                <p className="text-sm italic text-gray-500">
-                  Belum ada materi / tugas untuk pekan ini.
-                </p>
+              <div className="p-5 space-y-6 bg-white border-t">
+
+                {/* MATERIALS */}
+                <div>
+                  <h4 className="text-lg font-bold text-blue-700 mb-3 flex items-center">
+                    <FileText className="mr-2" size={18} /> Materi
+                  </h4>
+
+                  {week.materials?.length === 0 && (
+                    <p className="text-sm italic text-gray-500">
+                      Belum ada materi untuk pekan ini.
+                    </p>
+                  )}
+
+                  <div className="space-y-3">
+                    {week.materials?.map((mat) => (
+                      <div
+                        key={mat.id}
+                        className="p-4 border rounded-xl shadow-sm hover:shadow-md transition-all"
+                      >
+                        <h5 className="font-semibold text-gray-800">
+                          {mat.title}
+                        </h5>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {mat.content}
+                        </p>
+
+                        {mat.files?.length > 0 && (
+                          <div className="mt-3 space-y-1">
+                            {mat.files.map((file) => (
+                              <a
+                                key={file.id}
+                                href={file.file_url}
+                                target="_blank"
+                                className="text-blue-600 underline text-sm flex items-center gap-1"
+                              >
+                                <Link size={14} /> {file.file_name}
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* ASSIGNMENTS */}
+                <div>
+                  <h4 className="text-lg font-bold text-purple-700 mb-3 flex items-center">
+                    <BookOpen className="mr-2" size={18} /> Tugas
+                  </h4>
+
+                  {week.assignments?.length === 0 && (
+                    <p className="text-sm italic text-gray-500">
+                      Belum ada assignment untuk pekan ini.
+                    </p>
+                  )}
+
+                  <div className="space-y-3">
+                    {week.assignments?.map((asg) => (
+                      <div
+                        key={asg.id}
+                        className="p-4 border rounded-xl shadow-sm hover:shadow-md transition-all"
+                      >
+                        <h5 className="font-semibold text-gray-800">
+                          {asg.title}
+                        </h5>
+
+                        <p className="text-sm text-gray-600 mt-1">
+                          {asg.description}
+                        </p>
+
+                        <p className="text-xs text-red-600 mt-2 font-medium">
+                          Deadline: {formatDeadline(asg.deadline)}
+                        </p>
+
+                        {asg.files?.length > 0 && (
+                          <div className="mt-3 space-y-1">
+                            {asg.files.map((file) => (
+                              <a
+                                key={file.id}
+                                href={file.file_url}
+                                target="_blank"
+                                className="text-blue-600 underline text-sm flex items-center gap-1"
+                              >
+                                <Link size={14} /> {file.file_name}
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
               </div>
             )}
           </div>
         );
       })}
+
+      {selectedWeekId && (
+        <AddWeekContentModal
+          weekId={selectedWeekId}
+          courseId={course.id}
+          isOpen={showModalWeekContent}
+          onClose={() => setShowModalWeekContent(false)}
+          onSuccess={reloadWeeks}
+        />
+      )}
     </div>
   );
 };
+
+
+const reloadWeeks = async () => {
+  try {
+    const { data: courseData } = await fetchDetailCourse(id);
+    setWeeks(courseData.weeks)
+  } catch (err) {
+    console.error("Reload failed:", err)
+  }
+}

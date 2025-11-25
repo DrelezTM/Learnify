@@ -32,6 +32,36 @@ export async function addWeek(courseId, title) {
   }
 }
 
+export async function addMaterials(courseId, weekId, formData) {
+  try {
+    const { data } = await baseAxios.post(
+      `/courses/${courseId}/weeks/${weekId}/materials`,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+    return data;
+  } catch (error) {
+    console.error("Failed add material:", error);
+    throw error;
+  }
+}
+
+export async function addAssignments(courseId, weekId, formData) {
+  try {
+    const { data } = await baseAxios.post(
+      `/courses/${courseId}/weeks/${weekId}/assignments`,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+    return data;
+  } catch (error) {
+    console.error("Failed add assignment:", error);
+    throw error;
+  }
+}
+
+
+
 // Student
 export async function joinCourse(enrollment_key) {
   try {
