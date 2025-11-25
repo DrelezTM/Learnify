@@ -83,19 +83,18 @@ export default function DetailMaterialAssignment({ data, type }) {
 
                     <div className="flex gap-5 flex-wrap">
                         {data.files.map((file) => {
-                            const fileName = file.file_path.split("/").pop();
 
                             return (
                                 <a
                                     key={file.id}
-                                    href={file.file_url}
+                                    href={file.file_path}
                                     download
                                     className="flex items-center hover:cursor-pointer w-fit gap-x-5 bg-gray-50 border p-4 rounded-xl hover:bg-gray-100 transition"
                                 >
                                     <div className="flex items-center gap-3">
                                         <FileText size={20} className="text-blue-600" />
                                         <span className="text-gray-800 underline">
-                                            {fileName}
+                                            {file.file_name}
                                         </span>
                                     </div>
 

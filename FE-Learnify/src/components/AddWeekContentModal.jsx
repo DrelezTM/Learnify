@@ -54,7 +54,7 @@ export default function AddWeekContentModal({ isOpen, onClose, courseId, weekId,
 
             resetForm();
             onClose();
-            if (onSuccess) onSuccess();
+            onSuccess()
         } catch (err) {
             console.error(err);
             toast.error("Gagal menambahkan konten");
