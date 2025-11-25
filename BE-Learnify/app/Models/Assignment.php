@@ -21,4 +21,8 @@ class Assignment extends Model
     public function week() {
         return $this->belongsTo(Week::class);
     }
+
+    public function assignmentSubmissions() {
+        return $this->hasMany(AssignmentSubmission::class);
+    }
 }

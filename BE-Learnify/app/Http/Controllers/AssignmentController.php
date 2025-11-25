@@ -115,7 +115,7 @@ class AssignmentController extends Controller
             'message' => 'Course not found.'
         ], 404);
 
-        $material = Assignment::with('files')->where('week_id', $weekId)->where('id', $id)->first();
+        $material = Assignment::with(['files', 'assignmentSubmissions.submissionFiles'])->where('week_id', $weekId)->where('id', $id)->first();
         if (!$material) return response()->json([
             'success' => false,
             'message' => 'Invalid week ID provided.'

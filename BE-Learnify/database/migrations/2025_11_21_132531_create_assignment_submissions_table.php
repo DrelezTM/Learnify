@@ -13,11 +13,10 @@ return new class extends Migration
     {
         Schema::create('assignment_submissions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('week_id')->constrained('weeks', 'id')->onDelete('cascade');
             $table->foreignId('assignment_id')->constrained('assignments', 'id')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users', 'id')->onDelete('cascade');
             $table->timestamp('submitted_at');
-            $table->bigInteger('grade')->nullable();
-            $table->text('feedback')->nullable();
             $table->timestamps();
         });
     }

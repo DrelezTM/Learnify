@@ -34,7 +34,7 @@ Route::prefix('api')->group(function() {
     Route::resource('/courses/{courseId}/weeks/{weekId}/materials', MaterialController::class)->middleware('auth:sanctum')->only(['store', 'destroy', 'show']);
     
     Route::resource('/courses/{courseId}/weeks/{weekId}/assignments', AssignmentController::class)->only(['store', 'destroy', 'show'])->middleware('auth:sanctum');
-    Route::resource('/courses/{courseId}/weeks/{weekId}/assignments/{assignmentId}/submissions', AssignmentSubmissionController::class);
+    Route::resource('/courses/{courseId}/weeks/{weekId}/assignments/{assignmentId}/submissions', AssignmentSubmissionController::class)->middleware('auth:sanctum');
 
     // Attendances
     Route::resource('/attendances/sessions', AttendanceSessionController::class);
