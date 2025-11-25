@@ -52,7 +52,7 @@ function LoginPage() {
                     <p className="text-sm text-white/70 mt-1">Silakan login untuk melanjutkan.</p>
                 </div>
 
-                <div className="space-y-5">
+                <form className="space-y-5">
                     <div className="relative">
                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-600" size={20} />
                         <input
@@ -84,13 +84,13 @@ function LoginPage() {
                     </button>
 
                     <button
-    onClick={() => navigate("/register")}
-    className="w-full py-3.5 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-xl transition-all mt-3"
->
-    Buat Akun
-</button>
+                        onClick={() => navigate("/register")}
+                        className="w-full py-3.5 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-xl transition-all mt-3"
+                    >
+                        Buat Akun
+                    </button>
 
-                </div>
+                </form>
             </div>
         </div>
     );

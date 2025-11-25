@@ -1,9 +1,30 @@
 import { baseAxios } from "./baseAxios";
 
 
+// Lecturer
 export async function fetchCourses() {
   try {
     const { data } = await baseAxios.get(`/courses`);
+    return data;
+  } catch (error) {
+    console.error('Failed fetch courses:', error);
+    throw error;
+  }
+}
+
+export async function createCourse(title, description, major, studyProgram, className, batch) {
+  try {
+    const { data } = await baseAxios.post(`/courses`, { title, description, major, study_program: studyProgram, class: className, batch });
+    return data;
+  } catch (error) {
+    console.error('Failed create course:', error);
+    throw error;
+  }
+}
+
+export async function fetchCoursesStudent() {
+  try {
+    const { data } = await baseAxios.get(`/courses/me`);
     return data;
   } catch (error) {
     console.error('Failed fetch courses:', error);
