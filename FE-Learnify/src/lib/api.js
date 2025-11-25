@@ -22,6 +22,16 @@ export async function createCourse(title, description, major, studyProgram, clas
   }
 }
 
+export async function addWeek(courseId, title) {
+  try {
+    const { data } = await baseAxios.post(`/courses/${courseId}/weeks`, { title });
+    return data;
+  } catch (error) {
+    console.error('Failed add week:', error);
+    throw error;
+  }
+}
+
 // Student
 export async function joinCourse(enrollment_key) {
   try {

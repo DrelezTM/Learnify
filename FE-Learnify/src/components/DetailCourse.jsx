@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { fetchDetailCourse, fetchProfile } from "@/lib/api";
+import AddWeekModal from "./AddWeekModal";
 
 export default function DetailCourse() {
   const { id } = useParams();
@@ -12,9 +13,13 @@ export default function DetailCourse() {
 
   const [course, setCourse] = useState(null);
   const [lecturer, setLecturer] = useState(null);
+  const [weeks, setWeeks] = useState([]);
+
   const [loading, setLoading] = useState(true);
 
   const [tab, setTab] = useState("matkul");
+
+  const [showModalAddWeek, setShowModalAddWeek] = useState(false)
 
   useEffect(() => {
     const loadData = async () => {
@@ -23,6 +28,7 @@ export default function DetailCourse() {
 
         const { data: courseData } = await fetchDetailCourse(id);
         setCourse(courseData);
+        setWeeks(courseData.weeks)
 
         if (courseData) {
           const { data: lecturerData } = await fetchProfile(courseData.lecturer_id);
@@ -38,6 +44,21 @@ export default function DetailCourse() {
 
     loadData();
   }, [id]);
+
+  const isOwner = user?.id === course?.lecturer_id;
+
+  const reloadWeeks = async () => {
+    setLoading(true)
+
+    try {
+      const { data: courseData } = await fetchDetailCourse(id);
+      setWeeks(courseData.weeks)
+    } catch (err) {
+      console.error("Reload failed:", err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -55,7 +76,6 @@ export default function DetailCourse() {
     );
   }
 
-  const isLecturer = user?.id === course.lecturer_id;
 
   return (
     <div className="p-8 space-y-8 w-full mx-16">
@@ -111,6 +131,7 @@ export default function DetailCourse() {
       </Card>
 
       {/* TABS */}
+
       <div className="flex gap-2 pt-2 border-b border-gray-200">
         <Button
           variant={tab === "matkul" ? "default" : "ghost"}
@@ -128,7 +149,7 @@ export default function DetailCourse() {
           Materi Course
         </Button>
 
-        {isLecturer && (
+        {isOwner && (
           <Button
             variant={tab === "pengaturan" ? "default" : "ghost"}
             onClick={() => setTab("pengaturan")}
@@ -149,7 +170,7 @@ export default function DetailCourse() {
 
       {/* TAB CONTENT */}
       <Card className="
-        p-8 shadow-xl
+        p-3 shadow-xl
         rounded-3xl
         border border-gray-200
         bg-white/70 backdrop-blur-lg
@@ -158,13 +179,26 @@ export default function DetailCourse() {
 
         {/* TAB 1: MATKUL (belum dipakai) */}
         {tab === "matkul" && (
-          <div className="text-center text-gray-500 py-10 italic">
-            Silabus belum tersedia.
-          </div>
+          <>
+            {isOwner && (
+              <>
+                <Button
+                  className="w-fit py-5 px-6 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-200"
+                  onClick={() => setShowModalAddWeek(true)}
+                >
+                  Tambah Pekan
+                </Button>
+
+                <AddWeekModal isOpen={showModalAddWeek} courseId={course.id} onClose={() => setShowModalAddWeek(false)} onSuccess={reloadWeeks} />
+              </>
+            )}
+
+            <WeeksList weeks={weeks} isOwner={isOwner} />
+          </>
         )}
 
         {/* TAB 2: PENGATURAN */}
-        {tab === "pengaturan" && isLecturer && (
+        {tab === "pengaturan" && isOwner && (
           <div className="space-y-8">
             <h2 className="text-3xl font-bold text-gray-800 border-b pb-2">
               Pengaturan Dosen
@@ -204,48 +238,33 @@ export default function DetailCourse() {
   );
 }
 
-const generateMockSyllabus = () => {
-  const syllabus = [];
-  for (let i = 1; i <= 16; i++) {
-    let title = `Materi Pekan ${i}`;
-    let contents = [{ type: 'File', name: `Dokumen Inti Pekan ${i}.pdf` }];
-
-    if (i === 1) {
-      title = "Kontrak Perkuliahan";
-    } else if (i === 8) {
-      title = "Ujian Tengah Semester (UTS)";
-      contents = [{ type: 'Link', name: 'Link Ujian UTS' }];
-    } else if (i === 16) {
-      title = "Ujian Akhir Semester (UAS)";
-      contents = [{ type: 'Link', name: 'Link Ujian UAS' }];
-    }
-
-    syllabus.push({ week: i, title, contents });
-  }
-  return syllabus;
-};
-
-const SyllabusContent = ({ syllabus, isLecturer }) => {
+const WeeksList = ({ weeks, isOwner }) => {
   const [openWeek, setOpenWeek] = useState(null);
 
-  const toggleWeek = (week) => {
-    setOpenWeek(openWeek === week ? null : week);
+  const toggleWeek = (weekId) => {
+    setOpenWeek(openWeek === weekId ? null : weekId);
   };
 
   return (
-    <div className="space-y-3">
-      {syllabus.map((pekan) => {
-        const isOpen = openWeek === pekan.week;
+    <div className="space-y-3 mt-5">
+      {weeks.map((week, index) => {
+        const isOpen = openWeek === week.id;
+
         return (
-          <div key={pekan.week} className="border rounded-xl overflow-hidden shadow-sm">
-            {/* Header Pekan (Klik untuk Toggle) */}
+          <div
+            key={week.id}
+            className="border rounded-xl overflow-hidden shadow-sm"
+          >
+            {/* HEADER PEKAN */}
             <div
-              className={`flex items-center justify-between p-4 cursor-pointer transition-colors ${isOpen ? 'bg-blue-50' : 'bg-gray-50 hover:bg-gray-100'}`}
-              onClick={() => toggleWeek(pekan.week)}
+              className={`flex items-center justify-between p-4 cursor-pointer transition-colors ${isOpen ? "bg-blue-50" : "bg-gray-50 hover:bg-gray-100"
+                }`}
+              onClick={() => toggleWeek(week.id)}
             >
               <h3 className="text-base font-semibold text-gray-800 flex items-center">
-                Pekan #{pekan.week} - {pekan.title}
-                {isLecturer && (
+                {week.title}
+
+                {isOwner && (
                   <Button
                     variant="ghost"
                     size="icon"
@@ -253,35 +272,26 @@ const SyllabusContent = ({ syllabus, isLecturer }) => {
                     onClick={(e) => {
                       e.stopPropagation();
                     }}
-                    title={`Tambah Konten di Pekan ${pekan.week}`}
+                    title={`Tambah Materi / Assignment`}
                   >
                     <Plus size={16} />
                   </Button>
                 )}
               </h3>
-              <ChevronDown size={20} className={`text-gray-500 transition-transform ${isOpen ? 'rotate-180' : 'rotate-0'}`} />
+
+              <ChevronDown
+                size={20}
+                className={`text-gray-500 transition-transform ${isOpen ? "rotate-180" : "rotate-0"
+                  }`}
+              />
             </div>
 
-            {/* Konten Materi (Conditionally Rendered) */}
+            {/* BODY PEKAN */}
             {isOpen && (
-              <div className="p-4 pl-8 space-y-3 bg-white border-t">
-                {pekan.contents.length > 0 ? (
-                  pekan.contents.map((content, index) => {
-                    const Icon = content.type === 'File' ? FileText : Link;
-                    return (
-                      <div
-                        key={index}
-                        className="flex items-center space-x-3 text-sm text-gray-700 hover:text-blue-600 transition-colors cursor-pointer"
-                        onClick={() => console.log(`Buka konten: ${content.name}`)}
-                      >
-                        <Icon size={16} className="text-blue-500 flex-shrink-0" />
-                        <span className="truncate">{content.name}</span>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p className="text-sm text-gray-500 italic">Belum ada materi untuk pekan ini.</p>
-                )}
+              <div className="p-4 pl-8 bg-white border-t text-gray-700">
+                <p className="text-sm italic text-gray-500">
+                  Belum ada materi / tugas untuk pekan ini.
+                </p>
               </div>
             )}
           </div>
