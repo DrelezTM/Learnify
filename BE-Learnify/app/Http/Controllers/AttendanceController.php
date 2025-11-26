@@ -9,6 +9,8 @@ use App\Models\Enrollment;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use App\Models\Course;
 
 class AttendanceController extends Controller
 {
@@ -90,5 +92,58 @@ class AttendanceController extends Controller
         ]);
 
         return response()->json(['message' => 'Absensi berhasil!']);
+    }
+
+    public function createSession(Request $request)
+    {
+        if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) {
+             return response()->json(['success' => false, 'message' => 'Unauthorized. Hanya Dosen yang dapat membuat sesi.'], 403);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'course_id'  => 'required|exists:courses,id',
+            'week_id'    => 'required|exists:weeks,id',
+            'title'      => 'required|string|max:255',
+            'start_time' => 'required|date_format:Y-m-d H:i:s',
+            'end_time'   => 'required|date_format:Y-m-d H:i:s|after:start_time',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Data sesi tidak valid.', 
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $course = Course::find($request->course_id);
+            if ($course->lecturer_id !== Auth::id() && !$request->user()->tokenCan('role:admin')) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Anda bukan dosen pengampu mata kuliah ini.'
+                ], 403);
+            }
+
+            $session = AttendanceSession::create([
+                'course_id'  => $request->course_id,
+                'week_id'    => $request->week_id,
+                'title'      => $request->title,
+                'start_time' => $request->start_time,
+                'end_time'   => $request->end_time,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Sesi absensi berhasil dibuat.',
+                'data'    => $session
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat sesi: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
