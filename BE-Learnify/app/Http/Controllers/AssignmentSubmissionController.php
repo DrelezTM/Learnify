@@ -75,30 +75,36 @@ class AssignmentSubmissionController extends Controller
         ], 201);
     }
 
-    public function destroy(Request $request, $courseId, $weekId, $id) {
-        $course = Course::where('id', $courseId)->first();
-        if (!$course) return response()->json([
-            'success' => false,
-            'message' => 'Course not found.'
-        ], 404);
+    public function destroy($courseId, $weekId, $assignmentId, $submissionId)
+    {
+        $course = Course::find($courseId);
+        if (!$course) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Course not found.'
+            ], 404);
+        }
 
-        $assignmentSubmission = AssignmentSubmission::where('id', $id)->first();
-        if (!$assignmentSubmission) return response()->json([
-            'success' => false,
-            'message' => 'Invalid assignment submission ID provided.'
-        ], 400);
+        $submission = AssignmentSubmission::find($submissionId);
+        if (!$submission) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Submission not found.'
+            ], 404);
+        }
 
-        $assignmentFiles = SubmissionFile::where('submission_id', $id)->get();
-        foreach ($assignmentFiles as $file) {
+        $files = SubmissionFile::where('submission_id', $submissionId)->get();
+        foreach ($files as $file) {
             Storage::disk('public')->delete($file->file_path);
             $file->delete();
         }
 
-        $assignmentSubmission->delete();
+        $submission->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Assignment Submission and its associated files have been deleted successfully.'
-        ], 200);
+            'message' => 'Submission deleted.'
+        ]);
     }
+
 }

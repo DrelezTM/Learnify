@@ -84,7 +84,7 @@ function MaterialDetailPage() {
                 </div>
             ) : !material ? (
                 <div
-                    className="min-h-screen bg-gray-50 flex items-center justify-center transition-all duration-300"
+                    className="min-h-screen bg-gray-50 flex items-center justify-center transition-all duration-300 w-full"
                 >
                     <p className="text-red-600 font-medium">
                         Data materi tidak ditemukan.

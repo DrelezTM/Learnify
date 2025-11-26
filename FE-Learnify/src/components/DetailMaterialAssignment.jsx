@@ -1,5 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { deleteAssignment, deleteMaterial, submitAssignment } from "@/lib/api/courses-api";
+import { deleteAssignment, deleteMaterial, deleteSubmission, submitAssignment } from "@/lib/api/courses-api";
 import { Download, FileText, Calendar, User, AlarmClock, Trash, MoreHorizontal, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
@@ -8,7 +8,7 @@ import { toast } from "react-hot-toast";
 import { fetchProfile } from "@/lib/api/auth-api";
 
 export default function DetailMaterialAssignment({ courseId, data, type, authorId, onReload }) {
-    if (!data) return <div className="p-8">Loading...</div>;
+    if (!data) return <div className="p-8">Data not found...</div>;
 
     const [author, setAuthor] = useState("");
     const { user } = useAuth();
@@ -16,8 +16,6 @@ export default function DetailMaterialAssignment({ courseId, data, type, authorI
     const isOwner =
         Number(user?.id) === Number(data?.author_id) ||
         Number(user?.id) === Number(authorId);
-
-        console.log(isOwner)
 
     const [files, setFiles] = useState([]);
 
@@ -68,6 +66,10 @@ export default function DetailMaterialAssignment({ courseId, data, type, authorI
     const hasSubmitted = data.assignment_submissions?.some(
         (s) => s.user_id === user?.id
     );
+    const mySubmission = data.assignment_submissions
+        ?.find((s) => s.user_id === user?.id)
+
+    const submissionId = mySubmission?.id
 
     useEffect(() => {
         if (data.author_id) loadData();
@@ -204,7 +206,6 @@ export default function DetailMaterialAssignment({ courseId, data, type, authorI
                                         </span>
                                     </div>
 
-                                    <Download size={18} className="text-gray-600" />
                                 </a>
                             );
                         })}
@@ -302,9 +303,28 @@ export default function DetailMaterialAssignment({ courseId, data, type, authorI
             {/* if already submitted for student */}
             {isStudent && hasSubmitted && (
                 <div className="p-6 rounded-xl bg-green-50 border border-green-300">
-                    <p className="text-green-700 font-semibold">
-                        Kamu sudah mengumpulkan tugas ini 🎉
-                    </p>
+                    <div className="flex justify-between">
+                        <p className="text-green-700 font-semibold">
+                            Kamu sudah mengumpulkan tugas ini 🎉
+                        </p>
+
+                        <button
+                            className="w-full sm:w-auto py-2 px-4 text-sm bg-red-500 hover:bg-red-600 hover:scale-105 text-white font-semibold rounded-xl shadow-lg transition-all duration-200 mb-4"
+                            onClick={async () => {
+                                if (!confirm(`Yakin ingin menghapus pengajuan tugas anda?`)) return;
+
+                                try {
+                                    await deleteSubmission(courseId, data.week_id, data.id, submissionId);
+                                    toast.success(`Pengajuan tugas berhasil dihapus!`);
+                                    window.location.href = `/courses/${courseId}/${data.week_id}/assignment/${data.id}`;
+                                } catch (error) {
+                                    toast.error("Gagal menghapus pengajuan tugas!");
+                                    console.error(error)
+                                }
+                            }}>
+                            Hapus Pengajuan Tugas
+                        </button>
+                    </div>
 
                     <div className="mt-4 space-y-2">
                         {data.assignment_submissions
@@ -322,7 +342,6 @@ export default function DetailMaterialAssignment({ courseId, data, type, authorI
                                             {file.file_name}
                                         </span>
                                     </div>
-                                    <Download size={18} />
                                 </a>
                             ))}
                     </div>
@@ -376,7 +395,6 @@ export default function DetailMaterialAssignment({ courseId, data, type, authorI
                                             >
                                                 <FileText size={18} className="text-blue-600" />
                                                 <span className="underline text-gray-700">{file.file_name}</span>
-                                                <Download size={16} className="text-gray-600 ml-auto" />
                                             </a>
                                         ))}
                                     </div>

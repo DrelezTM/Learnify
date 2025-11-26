@@ -200,3 +200,15 @@ export async function submitAssignment(courseId, weekId, assignmentId, formData)
     }
 }
 
+export async function deleteSubmission(courseId, weekId, assignmentId, submissionId) {
+    try {
+        const { data } = await baseAxios.delete(
+            `/courses/${courseId}/weeks/${weekId}/assignments/${assignmentId}/submissions/${submissionId}`,
+        );
+        return data;
+    } catch (error) {
+        console.error("Failed delete submission:", error);
+        throw error;
+    }
+}
+
