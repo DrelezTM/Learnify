@@ -117,6 +117,12 @@ class AssignmentController extends Controller
             'message' => 'Course not found.'
         ], 404);
 
+        $week = Week::where('course_id', $course->id)->get()->first();
+        if (!$week) return response()->json([
+            'success' => false,
+            'message' => 'Week not found.'
+        ], 404);
+
         $material = Assignment::with(['files', 'assignmentSubmissions.submissionFiles'])->where('week_id', $weekId)->where('id', $id)->first();
         if (!$material) return response()->json([
             'success' => false,
@@ -126,7 +132,10 @@ class AssignmentController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Material details retrieved successfully',
-            'data' => $material
+            'data' => [
+                'materials' => $material,
+                'author_id' => $week->author_id
+            ]
         ], 200);
     }
 }
