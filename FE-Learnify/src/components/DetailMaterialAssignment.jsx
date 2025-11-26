@@ -15,6 +15,38 @@ export default function DetailMaterialAssignment({ courseId, data, type, authorI
     const isOwner = user?.id === data?.author_id || authorId;
     const [files, setFiles] = useState([]);
 
+    // for lecturer to see all submitters
+    const [submitters, setSubmitters] = useState({});
+
+    // fetch submitter name
+    useEffect(() => {
+        const loadSubmitterProfiles = async () => {
+            if (!data?.assignment_submissions) return;
+
+            const submissions = data.assignment_submissions;
+
+            const results = await Promise.all(
+                submissions.map(async (sub) => {
+                    try {
+                        const { data: userData } = await fetchProfile(sub.user_id);
+                        return { userId: sub.user_id, name: userData.name };
+                    } catch {
+                        return { userId: sub.user_id, name: "Unknown User" };
+                    }
+                })
+            );
+
+            const profileMap = Object.fromEntries(
+                results.map((r) => [r.userId, r.name])
+            );
+
+            setSubmitters(profileMap);
+        };
+
+        loadSubmitterProfiles();
+    }, [data?.assignment_submissions]);
+
+
     const loadData = async () => {
         try {
             const { data: user } = await fetchProfile(data.author_id);
@@ -261,7 +293,7 @@ export default function DetailMaterialAssignment({ courseId, data, type, authorI
                 </form>
             )}
 
-            {/* if already submitted */}
+            {/* if already submitted for student */}
             {isStudent && hasSubmitted && (
                 <div className="p-6 rounded-xl bg-green-50 border border-green-300">
                     <p className="text-green-700 font-semibold">
@@ -291,7 +323,63 @@ export default function DetailMaterialAssignment({ courseId, data, type, authorI
                 </div>
             )}
 
+            {/* all assignments for lecturer to see */}
+            {user?.role == "lecturer" && (
+                <div className="bg-white p-8 rounded-2xl shadow-sm border space-y-6">
+                    <h2 className="text-xl font-bold text-gray-800">Daftar Pengumpulan Tugas</h2>
 
+                    {/* Tidak ada submission */}
+                    {(!data.assignment_submissions || data.assignment_submissions.length === 0) && (
+                        <p className="text-gray-600 italic">
+                            Belum ada yang mengumpulkan tugas.
+                        </p>
+                    )}
+
+                    {/* Daftar submission */}
+                    {data.assignment_submissions?.length > 0 && (
+                        <div className="space-y-4">
+                            {data.assignment_submissions.map((sub) => (
+                                <div
+                                    key={sub.id}
+                                    className="border p-4 rounded-xl bg-gray-50 space-y-2"
+                                >
+                                    <div className="flex justify-between">
+                                        <div className="text-gray-800 font-medium">
+                                            {submitters[sub.user_id] || "Loading..."}
+                                        </div>
+
+                                        <div className="text-sm text-gray-500">
+                                            Dikumpulkan pada : {new Date(sub.submitted_at).toLocaleString("id-ID", {
+                                                day: "2-digit",
+                                                month: "long",
+                                                year: "numeric",
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    {/* File list */}
+                                    <div className="space-y-2 mt-2">
+                                        {sub.submission_files?.map((file, i) => (
+                                            <a
+                                                key={i}
+                                                href={file.file_path}
+                                                download
+                                                className="flex items-center gap-3 px-4 py-3  bg-white border rounded-xl hover:bg-gray-100 transition"
+                                            >
+                                                <FileText size={18} className="text-blue-600" />
+                                                <span className="underline text-gray-700">{file.file_name}</span>
+                                                <Download size={16} className="text-gray-600 ml-auto" />
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
 
         </div>
     );
