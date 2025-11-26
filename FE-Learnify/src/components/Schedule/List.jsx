@@ -1,23 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, Clock, Plus, X, Trash2, ChevronLeft, ChevronRight, GripVertical, Edit2 } from "lucide-react";
+import { getSchedules } from "@/lib/api/schedule-api";
 
 export default function CalendarApp() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [events, setEvents] = useState([
-    { id: 1, title: "Meeting dengan Tim", startDate: new Date(2025, 10, 25, 10, 0), endDate: new Date(2025, 10, 25, 11, 0), color: "#6366f1" },
-    { id: 2, title: "Presentasi Proyek", startDate: new Date(2025, 10, 27, 14, 0), endDate: new Date(2025, 10, 27, 16, 0), color: "#ef4444" },
-    { id: 3, title: "Workshop Design", startDate: new Date(2025, 10, 28, 9, 0), endDate: new Date(2025, 10, 30, 17, 0), color: "#10b981" }
-  ]);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [eventTitle, setEventTitle] = useState("");
-  const [eventStartTime, setEventStartTime] = useState("10:00");
-  const [eventEndTime, setEventEndTime] = useState("11:00");
-  const [eventEndDate, setEventEndDate] = useState(null);
-  const [eventColor, setEventColor] = useState("#6366f1");
-  const [draggedEvent, setDraggedEvent] = useState(null);
-  const [draggedOverDate, setDraggedOverDate] = useState(null);
-  const [editingEventId, setEditingEventId] = useState(null);
+
+  const [events, setEvents] = useState([]);
   const [fadeIn, setFadeIn] = useState(false);
   
   const [sidebarWidth, setSidebarWidth] = useState(256);
@@ -30,17 +18,37 @@ export default function CalendarApp() {
     setTimeout(() => setFadeIn(true), 50);
   }, []);
 
-  // Disable scroll when modal is open
   useEffect(() => {
-    if (showModal) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
+    const month = currentDate.getMonth() + 1;
+    const year = currentDate.getFullYear();
+
+    const fetchSchedules = async () => {
+      try {
+        const response = await getSchedules(month, year);
+        console.log(response);
+        if (response.status && response.data) {
+          const mappedEvents = response.data.flatMap(enrollment => {
+            const course = enrollment.course;
+            return course.weeks.flatMap(week =>
+              week.assignments.map(assignment => ({
+                id: assignment.id,
+                title: `${course.title} - ${assignment.title}`,
+                startDate: new Date(assignment.deadline),
+                endDate: new Date(assignment.deadline),
+                color: "#6366f1",
+              }))
+            );
+          });
+          setEvents(mappedEvents);
+        }
+      } catch (error) {
+        console.error("Gagal fetch jadwal:", error);
+      }
     };
-  }, [showModal]);
+
+    fetchSchedules();
+  }, [ currentDate ]);
+
 
   // Monitor sidebar width changes
   useEffect(() => {
@@ -112,98 +120,6 @@ export default function CalendarApp() {
     return { isStart, isEnd, span };
   };
 
-  const addEvent = () => {
-    if (!eventTitle.trim()) return;
-    
-    const [sh, sm] = eventStartTime.split(":");
-    const [eh, em] = eventEndTime.split(":");
-    
-    const startDate = new Date(selectedDate);
-    startDate.setHours(parseInt(sh), parseInt(sm));
-    
-    const endDate = eventEndDate ? new Date(eventEndDate) : new Date(selectedDate);
-    endDate.setHours(parseInt(eh), parseInt(em));
-    
-    if (editingEventId) {
-      setEvents(events.map(e => 
-        e.id === editingEventId 
-          ? { ...e, title: eventTitle, startDate: startDate, endDate: endDate, color: eventColor }
-          : e
-      ));
-      setEditingEventId(null);
-    } else {
-      setEvents([...events, { 
-        id: Date.now(), 
-        title: eventTitle, 
-        startDate: startDate,
-        endDate: endDate,
-        color: eventColor 
-      }]);
-    }
-    
-    setEventTitle("");
-    setEventStartTime("10:00");
-    setEventEndTime("11:00");
-    setEventEndDate(null);
-    setShowModal(false);
-  };
-
-  const editEvent = (event) => {
-    setEditingEventId(event.id);
-    setEventTitle(event.title);
-    setSelectedDate(new Date(event.startDate));
-    setEventEndDate(new Date(event.endDate));
-    setEventStartTime(event.startDate.toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" }));
-    setEventEndTime(event.endDate.toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit" }));
-    setEventColor(event.color);
-    setShowModal(true);
-  };
-
-  const deleteEvent = (eventId) => {
-    setEvents(events.filter(e => e.id !== eventId));
-  };
-
-  const handleDragStart = (e, event) => {
-    setDraggedEvent(event);
-    e.dataTransfer.effectAllowed = "move";
-  };
-
-  const handleDragOver = (e, day) => {
-    e.preventDefault();
-    setDraggedOverDate(day);
-  };
-
-  const handleDrop = (e, day) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (draggedEvent) {
-      const oldStart = new Date(draggedEvent.startDate);
-      const oldEnd = new Date(draggedEvent.endDate);
-      const duration = oldEnd - oldStart;
-      
-      const newStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-      newStart.setHours(oldStart.getHours(), oldStart.getMinutes());
-      
-      const newEnd = new Date(newStart.getTime() + duration);
-      
-      setEvents(events.map(e => 
-        e.id === draggedEvent.id 
-          ? { ...e, startDate: newStart, endDate: newEnd }
-          : e
-      ));
-      
-      setDraggedEvent(null);
-      setDraggedOverDate(null);
-    }
-  };
-
-  const handleDayClick = (day) => {
-    if (draggedEvent) return;
-    setSelectedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
-    setEventEndDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
-    setShowModal(true);
-  };
-
   const renderCalendar = () => {
     const days = [];
     const renderedEvents = new Set();
@@ -219,13 +135,8 @@ export default function CalendarApp() {
       days.push(
         <div
           key={day}
-          onClick={() => handleDayClick(day)}
-          onDragOver={(e) => handleDragOver(e, day)}
-          onDrop={(e) => handleDrop(e, day)}
           className={`min-h-[60px] sm:min-h-[80px] md:aspect-square p-1.5 sm:p-2 rounded-xl sm:rounded-2xl cursor-pointer transition-all duration-300 group relative ${
-            draggedOverDate === day 
-              ? "bg-blue-100 border-2 border-blue-400 scale-105" 
-              : isToday(day) 
+            isToday(day) 
               ? "bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/50 text-white scale-105" 
               : hasEvents
               ? "bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 hover:border-blue-400 hover:shadow-lg hover:scale-105"
@@ -248,26 +159,17 @@ export default function CalendarApp() {
                   return (
                     <div
                       key={e.id}
-                      draggable
-                      onDragStart={(ev) => handleDragStart(ev, e)}
-                      className="text-[8px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 rounded-md text-white font-medium truncate shadow-sm cursor-move hover:shadow-md transition-all flex items-center gap-0.5 sm:gap-1"
+                      className="text-[8px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 rounded-md text-white font-medium truncate shadow-sm cursor-default hover:shadow-md transition-all flex items-center gap-0.5 sm:gap-1"
                       style={{ 
                         backgroundColor: e.color,
                         gridColumn: `span ${span}`
                       }}
-                      onClick={(ev) => ev.stopPropagation()}
                     >
                       <GripVertical className="w-2 h-2 flex-shrink-0 opacity-60 hidden sm:block" />
                       <span className="truncate">{e.title}</span>
                     </div>
                   );
                 })}
-              </div>
-            )}
-            
-            {!hasEvents && !isToday(day) && (
-              <div className="hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-[10px] text-blue-500 font-medium mt-auto">
-                + Tambah
               </div>
             )}
           </div>
@@ -279,9 +181,7 @@ export default function CalendarApp() {
 
   return (
     <div 
-      className={`bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 w-full transition-all duration-700 ease-out ${
-        showModal ? 'overflow-hidden' : 'overflow-y-auto'
-      } ${fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+      className={`bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 w-full transition-all duration-700 ease-out translate-y-4 overflow-y-auto`}
       style={{ 
         marginLeft: `${sidebarWidth}px`,
         height: '100vh'
@@ -426,20 +326,6 @@ export default function CalendarApp() {
                                 )}
                               </div>
                             </div>
-                            <div className="flex gap-1">
-                              <button
-                                onClick={() => editEvent(event)}
-                                className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all duration-300 flex-shrink-0"
-                              >
-                                <Edit2 className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => deleteEvent(event.id)}
-                                className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-300 flex-shrink-0"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
                           </div>
                         </div>
                       );
@@ -448,134 +334,6 @@ export default function CalendarApp() {
               </div>
             </div>
           </div>
-
-          {/* Modal */}
-          {showModal && (
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300 overflow-y-auto">
-              <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-md transform transition-all animate-in zoom-in duration-300 my-8">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    {editingEventId ? "Edit Event" : "Tambah Event Baru"}
-                  </h2>
-                  <button 
-                    onClick={() => {
-                      setShowModal(false);
-                      setEditingEventId(null);
-                      setEventTitle("");
-                      setEventStartTime("10:00");
-                      setEventEndTime("11:00");
-                      setEventEndDate(null);
-                    }} 
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-300"
-                  >
-                    <X className="w-6 h-6" />
-                  </button>
-                </div>
-                
-                <div className="space-y-5">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Judul Event
-                    </label>
-                    <input
-                      type="text"
-                      value={eventTitle}
-                      onChange={(e) => setEventTitle(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
-                      placeholder="Masukkan judul event..."
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Tanggal Mulai
-                      </label>
-                      <input
-                        type="date"
-                        value={selectedDate?.toISOString().split('T')[0]}
-                        onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Tanggal Selesai
-                      </label>
-                      <input
-                        type="date"
-                        value={eventEndDate?.toISOString().split('T')[0]}
-                        onChange={(e) => setEventEndDate(new Date(e.target.value))}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Waktu Mulai
-                      </label>
-                      <input
-                        type="time"
-                        value={eventStartTime}
-                        onChange={(e) => setEventStartTime(e.target.value)}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Waktu Selesai
-                      </label>
-                      <input
-                        type="time"
-                        value={eventEndTime}
-                        onChange={(e) => setEventEndTime(e.target.value)}
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
-                      Warna Label
-                    </label>
-                    <div className="flex gap-3">
-                      {["#6366f1", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"].map(color => (
-                        <button
-                          key={color}
-                          onClick={() => setEventColor(color)}
-                          className={`w-11 h-11 rounded-full transition-all duration-300 hover:scale-110 shadow-lg ${
-                            eventColor === color ? "ring-4 ring-offset-2 ring-gray-300 scale-110" : "hover:shadow-xl"
-                          }`}
-                          style={{ backgroundColor: color }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={addEvent}
-                    className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-full shadow-lg shadow-blue-500/30 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 mt-6"
-                  >
-                    {editingEventId ? (
-                      <>
-                        <Edit2 className="w-5 h-5" />
-                        Update Event
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="w-5 h-5" />
-                        Tambah Event
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
       
