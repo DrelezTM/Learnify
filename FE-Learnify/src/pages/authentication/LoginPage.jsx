@@ -20,6 +20,7 @@ function LoginPage() {
 
             if (data.data.token) {
                 document.cookie = `token=${data.data.token}; path=/; max-age=${60 * 60 * 24 * 7}`;
+                domain='localhost';
 
                 if (data.data.user) {
                     localStorage.setItem("user", JSON.stringify(data.data.user));

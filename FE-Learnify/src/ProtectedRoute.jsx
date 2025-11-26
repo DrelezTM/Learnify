@@ -7,7 +7,7 @@ function ProtectedRoute({ children }) {
         ?.split("=")[1];
 
     if (!token) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/" replace />;
     }
 
     return children;
