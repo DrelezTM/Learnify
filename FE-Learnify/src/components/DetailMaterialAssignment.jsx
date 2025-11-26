@@ -1,31 +1,39 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { deleteAssignment, deleteMaterial, fetchProfile } from "@/lib/api";
-import { Download, FileText, Calendar, User, AlarmClock, Trash, MoreHorizontal } from "lucide-react";
+import { deleteAssignment, deleteMaterial, fetchProfile, submitAssignment } from "@/lib/api";
+import { Download, FileText, Calendar, User, AlarmClock, Trash, MoreHorizontal, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
 import { toast } from "react-hot-toast";
 
-export default function DetailMaterialAssignment({ courseId, data, type, authorId }) {
+export default function DetailMaterialAssignment({ courseId, data, type, authorId, onReload }) {
     if (!data) return <div className="p-8">Loading...</div>;
 
     const [author, setAuthor] = useState("");
     const { user } = useAuth();
 
     const isOwner = user?.id === data?.author_id || authorId;
+    const [files, setFiles] = useState([]);
+
+    const loadData = async () => {
+        try {
+            const { data: user } = await fetchProfile(data.author_id);
+            setAuthor(user.name);
+        } catch (error) {
+            console.error("Failed load author:", error);
+        }
+    };
+
+    const isStudent = user?.role == "student"
+
+    // student has submitted?
+    const hasSubmitted = data.assignment_submissions?.some(
+        (s) => s.user_id === user?.id
+    );
 
     useEffect(() => {
-        const loadData = async () => {
-            try {
-                const { data: user } = await fetchProfile(data.author_id);
-                setAuthor(user.name);
-            } catch (error) {
-                console.error("Failed load author:", error);
-            }
-        };
-
         if (data.author_id) loadData();
-    }, [data.author_id]);
+    }, [data.author_id, data]);
 
     const formattedDate = new Date(data.created_at).toLocaleDateString("id-ID", {
         day: "2-digit",
@@ -43,6 +51,29 @@ export default function DetailMaterialAssignment({ courseId, data, type, authorI
                 minute: "2-digit",
             })
             : null;
+
+
+    const handleSubmission = async (e) => {
+        e.preventDefault();
+
+        try {
+            const formData = new FormData();
+            if (files && files.length > 0) {
+                for (let i = 0; i < files.length; i++) {
+                    formData.append("files[]", files[i]);
+                }
+            }
+            await submitAssignment(courseId, data.week_id, data.id, formData);
+
+            toast.success("Berhasil mengirim tugas!");
+            setFiles([])
+            onReload?.()
+        } catch (err) {
+            console.error(err);
+            toast.error("Gagal mengirim tugas!");
+        } finally {
+        }
+    };
 
     return (
         <div className="p-10 w-full mx-10 space-y-5">
@@ -111,19 +142,13 @@ export default function DetailMaterialAssignment({ courseId, data, type, authorI
             </div>
 
             {/* Content / Description */}
-            <div className="bg-white p-8 rounded-2xl shadow-sm border">
+            <div className="bg-white p-8 rounded-2xl flex flex-col gap-5 shadow-sm border">
                 <p className="text-gray-700 leading-relaxed whitespace-pre-line">
                     {type === "material" ? data.content : data.description}
                 </p>
-            </div>
 
-            {/* Files */}
-            {data.files?.length > 0 && (
-                <div className="bg-white p-8 rounded-2xl shadow-sm border">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                        File Lampiran
-                    </h2>
-
+                {/* Files */}
+                {data.files?.length > 0 && (
                     <div className="flex gap-5 flex-wrap">
                         {data.files.map((file) => {
 
@@ -146,8 +171,128 @@ export default function DetailMaterialAssignment({ courseId, data, type, authorI
                             );
                         })}
                     </div>
+                )}
+            </div>
+
+            {/* if not submit yet */}
+            {isStudent && !hasSubmitted && (
+                <form
+                    className="p-8 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 space-y-4"
+                    onSubmit={handleSubmission}
+                >
+                    {/* Upload area */}
+                    <label
+                        htmlFor="submission"
+                        className="w-full h-full flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-gray-100 transition p-6 rounded-xl"
+                    >
+                        <Upload className="text-gray-500" size={32} />
+
+                        <p className="text-gray-700 font-medium">
+                            Klik untuk upload file
+                        </p>
+
+                        <p className="text-sm text-gray-500 uppercase">
+                            jpg, jpeg, png, pdf, doc, docx, zip
+                        </p>
+
+                        <input
+                            id="submission"
+                            type="file"
+                            className="hidden"
+                            multiple
+                            onChange={(e) => {
+                                const selected = Array.from(e.target.files);
+                                setFiles((prevFiles) => [...prevFiles, ...selected]);
+                            }}
+                        />
+                    </label>
+
+                    {/* File list */}
+                    {files.length > 0 && (
+                        <div className="bg-white border rounded-xl p-4">
+                            <h3 className="text-sm font-semibold mb-2">File yang dipilih:</h3>
+
+                            <ul className="space-y-2">
+                                {files.map((file, index) => (
+                                    <li
+                                        key={index}
+                                        className="flex justify-between items-center bg-gray-100 px-4 py-3 rounded-xl"
+                                    >
+                                        <div>
+                                            <p className="text-sm font-medium">{file.name}</p>
+                                            <p className="text-xs text-gray-500">
+                                                {(file.size / 1024).toFixed(1)} KB
+                                            </p>
+                                        </div>
+
+                                        <button
+                                            className="text-red-500 font-semibold text-sm hover:underline"
+                                            onClick={() =>
+                                                setFiles(files.filter((_, i) => i !== index))
+                                            }
+                                        >
+                                            <Trash size={16} />
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {/* Submit button */}
+                    {files.length > 0 && (
+                        <button
+                            type="submit"
+                            className="
+                    w-full py-2
+                    rounded-xl
+                    bg-blue-600
+                    text-white
+                    font-medium
+                    shadow-sm
+                    hover:bg-blue-700
+                    disabled:bg-blue-300
+                    transition
+                "
+                        >
+                            Submit Tugas
+                        </button>
+                    )}
+                </form>
+            )}
+
+            {/* if already submitted */}
+            {isStudent && hasSubmitted && (
+                <div className="p-6 rounded-xl bg-green-50 border border-green-300">
+                    <p className="text-green-700 font-semibold">
+                        Kamu sudah mengumpulkan tugas ini 🎉
+                    </p>
+
+                    <div className="mt-4 space-y-2">
+                        {data.assignment_submissions
+                            .find((s) => s.user_id === user.id)
+                            ?.submission_files?.map((file) => (
+                                <a
+                                    href={file.file_path}
+                                    download
+                                    key={file.id}
+                                    className="flex justify-between items-center bg-white border p-3 rounded-xl"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <FileText size={18} className="text-blue-600" />
+                                        <span className="text-gray-800 underline">
+                                            {file.file_name}
+                                        </span>
+                                    </div>
+                                    <Download size={18} />
+                                </a>
+                            ))}
+                    </div>
                 </div>
             )}
+
+
+
         </div>
     );
 }

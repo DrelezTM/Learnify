@@ -4,21 +4,21 @@ import { Button } from "./ui/button";
 import { toast } from "react-hot-toast";
 import { addAssignments, addMaterials } from "@/lib/api";
 
-export default function AddWeekContentModal({ isOpen, onClose, courseId, weekId, onSuccess }) {
+export default function AddAssignmentOrMaterialModal({ isOpen, onClose, courseId, weekId, onSuccess }) {
     const [type, setType] = useState("material"); // material / assignment
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState(""); // for assignment
     const [deadline, setDeadline] = useState(""); // for assignment
 
-    const [file, setFile] = useState(null);
+    const [files, setFiles] = useState([]);
     const [loading, setLoading] = useState(false);
 
     const resetForm = () => {
         setTitle("");
         setDescription("");
         setDeadline("");
-        setFile(null);
+        setFiles([]);
         setType("material");
     };
 
@@ -33,7 +33,11 @@ export default function AddWeekContentModal({ isOpen, onClose, courseId, weekId,
             formData.append("title", title);
 
             if (type === "material") {
-                if (file) formData.append("files[]", file);
+                if (files && files.length > 0) {
+                    for (let i = 0; i < files.length; i++) {
+                        formData.append("files[]", files[i]);
+                    }
+                }
                 formData.append("content", description || "");
 
                 await addMaterials(courseId, weekId, formData);
@@ -46,7 +50,11 @@ export default function AddWeekContentModal({ isOpen, onClose, courseId, weekId,
                 const formattedDeadline = `${datePart} ${timePart}:00`;
                 formData.append("deadline", formattedDeadline);
 
-                if (file) formData.append("files[]", file);
+                if (files && files.length > 0) {
+                    for (let i = 0; i < files.length; i++) {
+                        formData.append("files[]", files[i]);
+                    }
+                }
 
                 await addAssignments(courseId, weekId, formData);
                 toast.success("Assignment berhasil ditambahkan!");
@@ -120,7 +128,8 @@ export default function AddWeekContentModal({ isOpen, onClose, courseId, weekId,
                         <label className="block text-sm font-medium mb-1">File</label>
                         <input
                             type="file"
-                            onChange={(e) => setFile(e.target.files[0])}
+                            multiple
+                            onChange={(e) => setFiles(e.target.files)}
                             className="w-full"
                         />
                     </div>

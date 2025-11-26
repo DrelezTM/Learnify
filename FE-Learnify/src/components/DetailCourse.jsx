@@ -19,7 +19,7 @@ import { formatDeadline } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import CreateEditCourseModal from "./CreateEditCourseModal";
-import AddWeekContentModal from "./AddWeekContentModal";
+import AddAssignmentOrMaterialModal from "./AddAssignmentOrMaterialModal";
 
 export default function DetailCourse() {
   const { id } = useParams();
@@ -205,7 +205,7 @@ export default function DetailCourse() {
 
         {/* Modal Add Content */}
         {selectedWeekId && (
-          <AddWeekContentModal
+          <AddAssignmentOrMaterialModal
             weekId={selectedWeekId}
             courseId={course.id}
             isOpen={showModalWeekContent}

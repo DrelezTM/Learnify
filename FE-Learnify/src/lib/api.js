@@ -176,6 +176,20 @@ export async function fetchDetailCourse(id) {
   }
 }
 
+export async function submitAssignment(courseId, weekId, assignmentId, formData) {
+  try {
+    const { data } = await baseAxios.post(
+      `/courses/${courseId}/weeks/${weekId}/assignments/${assignmentId}/submissions`,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+    return data;
+  } catch (error) {
+    console.error("Failed submit assignment:", error);
+    throw error;
+  }
+}
+
 export async function fetchLogin(email, password) {
   try {
     const { data } = await baseAxios.post(`/login`, { email, password });
