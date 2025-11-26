@@ -2,13 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
   Plus,
-  Settings,
   BookOpen,
   ChevronDown,
   FileText,
   Link as LinkIcon,
-  Trash2,
-  RefreshCcw,
   Pencil,
   Trash,
 } from "lucide-react";
@@ -18,11 +15,11 @@ import { Card } from "./ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { fetchDetailCourse, fetchProfile, deleteWeek, deleteCourse } from "@/lib/api";
 import WeekModal from "./WeekModal";
-import AddWeekContentModal from "./AddWeekContentModal";
 import { formatDeadline } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import CreateEditCourseModal from "./CreateEditCourseModal";
+import AddWeekContentModal from "./AddWeekContentModal";
 
 export default function DetailCourse() {
   const { id } = useParams();
@@ -96,7 +93,7 @@ export default function DetailCourse() {
       {/* HEADER CARD */}
       <Card className="p-10 shadow-lg rounded-3xl bg-white/30 backdrop-blur-xl border border-white/40 transition-all">
         <div className="flex justify-between">
-          <h1 className="text-5xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
+          <h1 className="text-5xl font-extrabold  text-blue-600">
             {course.title}
           </h1>
 

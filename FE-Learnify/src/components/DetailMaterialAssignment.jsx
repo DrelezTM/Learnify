@@ -1,11 +1,18 @@
-import { fetchProfile } from "@/lib/api";
-import { Download, FileText, Calendar, User, AlarmClock } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { deleteAssignment, deleteMaterial, fetchProfile } from "@/lib/api";
+import { Download, FileText, Calendar, User, AlarmClock, Trash, MoreHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
+import { Button } from "./ui/button";
+import { toast } from "react-hot-toast";
 
-export default function DetailMaterialAssignment({ data, type }) {
+export default function DetailMaterialAssignment({ courseId, data, type, authorId }) {
     if (!data) return <div className="p-8">Loading...</div>;
 
     const [author, setAuthor] = useState("");
+    const { user } = useAuth();
+
+    const isOwner = user?.id === data?.author_id || authorId;
 
     useEffect(() => {
         const loadData = async () => {
@@ -42,9 +49,45 @@ export default function DetailMaterialAssignment({ data, type }) {
 
             {/* Header */}
             <div className="bg-white shadow-md rounded-2xl p-8 border">
-                <h1 className="text-3xl font-bold text-gray-900 mb-3">
-                    {type === "material" ? "Materi" : "Tugas"} - {data.title}
-                </h1>
+                <div className="flex justify-between">
+
+                    <h1 className="text-3xl font-bold text-gray-900 mb-3">
+                        {type === "material" ? "Materi" : "Tugas"} - {data.title}
+                    </h1>
+
+                    {isOwner && (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button className="h-8 w-8 text-gray-700 shadow-none">
+                                    <MoreHorizontal size={16} />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem
+                                    onClick={async () => {
+                                        if (!confirm(`Yakin ingin menghapus "${data.title}"?`)) return;
+
+                                        try {
+                                            if (type == "material") {
+                                                await deleteMaterial(courseId, data.week_id, data.id);
+                                            } else {
+                                                await deleteAssignment(courseId, data.week_id, data.id)
+                                            }
+                                            toast.success(`${type === "material" ? "Materi" : "Tugas"} berhasil dihapus`);
+                                            window.location.href = `/courses/${courseId}`;
+                                        } catch (error) {
+                                            toast.error("Gagal menghapus!");
+                                        }
+                                    }}
+                                    className="flex hover:cursor-pointer hover:opacity-80 transition-all  items-center gap-2 text-red-600"
+                                >
+                                    <Trash size={16} /> Hapus {type == "assignment" ? "Tugas" : "Materi"}
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                    )}
+                </div>
 
                 <div className="flex items-center text-gray-600 gap-6 text-sm">
                     {author && (

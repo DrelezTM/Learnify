@@ -1,4 +1,3 @@
-import DetailMaterial from '@/components/DetailMaterialAssignment'
 import Sidebar from '../../components/Sidebar'
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -7,13 +6,16 @@ import { showAssignment } from '@/lib/api';
 
 function AssignmentDetailPage() {
     const { id, weekId, assignmentId } = useParams();
+
     const [assignment, setAssignment] = useState(null);
+    const [authorId, setAuthorId] = useState(null)
 
     useEffect(() => {
         const loadData = async () => {
             try {
                 const { data } = await showAssignment(id, weekId, assignmentId);
-                setAssignment(data)
+                setAssignment(data.materials)
+                setAuthorId(data.author_id)
             } catch (error) {
                 console.error("Failed load detail:", error);
             }
@@ -25,7 +27,7 @@ function AssignmentDetailPage() {
     return (
         <div className="flex h-screen ml-64">
             <Sidebar />
-            <DetailMaterialAssignment type="assignment" data={assignment} />
+            <DetailMaterialAssignment type="assignment" courseId={id} authorId={authorId} data={assignment} />
         </div>
     )
 }

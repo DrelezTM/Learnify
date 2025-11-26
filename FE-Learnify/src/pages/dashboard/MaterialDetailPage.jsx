@@ -1,4 +1,3 @@
-import DetailMaterial from '@/components/DetailMaterialAssignment'
 import Sidebar from '../../components/Sidebar'
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
@@ -26,7 +25,7 @@ function MaterialDetailPage() {
     return (
         <div className="flex h-screen ml-64">
             <Sidebar />
-            <DetailMaterialAssignment type="material" data={material} />
+            <DetailMaterialAssignment type="material" courseId={id} data={material} />
         </div>
     )
 }

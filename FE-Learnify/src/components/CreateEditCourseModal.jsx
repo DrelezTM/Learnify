@@ -98,50 +98,54 @@ export default function CreateEditCourseModal({
                     <div>
                         <label className="block text-sm font-medium">Deskripsi</label>
                         <textarea
-                            className="w-full border-2 rounded-xl px-3 py-2 mt-1"
+                            className="w-full border-2 h-24 rounded-xl px-3 py-2 mt-1"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                         />
                         {errors.description && <p className="text-red-500 text-sm">{errors.description[0]}</p>}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium">Major</label>
-                            <input
-                                className="w-full border-2 rounded-xl px-3 py-2 mt-1"
-                                value={major}
-                                onChange={(e) => setMajor(e.target.value)}
-                            />
-                        </div>
+                    {mode == "create" && (
 
-                        <div>
-                            <label className="block text-sm font-medium">Study Program</label>
-                            <input
-                                className="w-full border-2 rounded-xl px-3 py-2 mt-1"
-                                value={studyProgram}
-                                onChange={(e) => setStudyProgram(e.target.value)}
-                            />
-                        </div>
 
-                        <div>
-                            <label className="block text-sm font-medium">Class</label>
-                            <input
-                                className="w-full border-2 rounded-xl px-3 py-2 mt-1"
-                                value={className}
-                                onChange={(e) => setClassName(e.target.value)}
-                            />
-                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium">Major</label>
+                                <input
+                                    className="w-full border-2 rounded-xl px-3 py-2 mt-1"
+                                    value={major}
+                                    onChange={(e) => setMajor(e.target.value)}
+                                />
+                            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium">Batch</label>
-                            <input
-                                className="w-full border-2 rounded-xl px-3 py-2 mt-1"
-                                value={batch}
-                                onChange={(e) => setBatch(e.target.value)}
-                            />
+                            <div>
+                                <label className="block text-sm font-medium">Study Program</label>
+                                <input
+                                    className="w-full border-2 rounded-xl px-3 py-2 mt-1"
+                                    value={studyProgram}
+                                    onChange={(e) => setStudyProgram(e.target.value)}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium">Class</label>
+                                <input
+                                    className="w-full border-2 rounded-xl px-3 py-2 mt-1"
+                                    value={className}
+                                    onChange={(e) => setClassName(e.target.value)}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium">Batch</label>
+                                <input
+                                    className="w-full border-2 rounded-xl px-3 py-2 mt-1"
+                                    value={batch}
+                                    onChange={(e) => setBatch(e.target.value)}
+                                />
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     <div className="flex justify-end gap-3 mt-6">
                         <button

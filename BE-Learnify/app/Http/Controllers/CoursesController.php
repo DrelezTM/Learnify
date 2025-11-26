@@ -32,7 +32,7 @@ class CoursesController extends Controller
     {
         $class = Course::with(['weeks.assignments', 'weeks.materials'])->find($id);
 
-        if (! $class) {
+        if (!$class) {
             return response()->json([
                 'success' => false,
                 'message' => 'Course not found',
@@ -47,7 +47,8 @@ class CoursesController extends Controller
         ], 200);
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
@@ -74,8 +75,8 @@ class CoursesController extends Controller
         $createCourse = Course::create([
             'title' => $validate['title'],
             'description' => $validate['description'] ?? null,
-            'code' => strtoupper($validate['study_program']).'-'.strtoupper($validate['class']).'-'.strtoupper($validate['batch']),
-            'slug' => strtolower(str_replace(' ', '-', $validate['title'])).'-'.strtolower($validate['study_program']).'-'.strtolower($validate['class']).'-'.strtolower($validate['batch']),
+            'code' => strtoupper($validate['study_program']) . '-' . strtoupper($validate['class']) . '-' . strtoupper($validate['batch']),
+            'slug' => strtolower(str_replace(' ', '-', $validate['title'])) . '-' . strtolower($validate['study_program']) . '-' . strtolower($validate['class']) . '-' . strtolower($validate['batch']),
             'enrollment_key' => $this->generateEnrollmentKey(),
             'lecturer_id' => Auth::id()
         ]);
@@ -95,7 +96,8 @@ class CoursesController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, $id) {
+    public function update(Request $request, $id)
+    {
         if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'
@@ -112,11 +114,8 @@ class CoursesController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'title' => 'sometimes|required|string',
-            'description' => 'sometimes|string|nullable',
-            'study_program' => 'sometimes|required|string',
-            'class' => 'sometimes|required|string',
-            'batch' => 'sometimes|required|string',
+            'title' => 'required|string',
+            'description' => 'string'
         ]);
 
         if ($validator->fails()) {
@@ -131,8 +130,6 @@ class CoursesController extends Controller
         $course->update([
             'title' => $validated['title'] ?? $course->title,
             'description' => $validated['description'] ?? $course->description,
-            'code' => strtoupper($validated['study_program'] ?? $course->study_program) . '-' . strtoupper($validated['class'] ?? $course->class) . '-' . strtoupper($validated['batch'] ?? $course->batch),
-            'slug' => strtolower(str_replace(' ', '-', $validated['title'] ?? $course->title)) . '-' . strtolower($validated['study_program'] ?? $course->study_program) . '-' . strtolower($validated['class'] ?? $course->class) . '-' . strtolower($validated['batch'] ?? $course->batch),
         ]);
 
         return response()->json([
@@ -142,7 +139,8 @@ class CoursesController extends Controller
         ], 200);
     }
 
-    public function destroy(Request $request, $id) {
+    public function destroy(Request $request, $id)
+    {
         if (!$request->user()->tokenCan('role:lecturer') && !$request->user()->tokenCan('role:admin')) return response()->json([
             'success' => false,
             'message' => 'Unauthorized. You do not have the required role to access this resource.'

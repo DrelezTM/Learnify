@@ -32,9 +32,9 @@ export async function addWeek(courseId, title) {
   }
 }
 
-export async function editCourse(courseId, title, description, studyProgram, className, batch) {
+export async function editCourse(courseId, title, description) {
   try {
-    const { data } = await baseAxios.put(`/courses/${courseId}`, { title, description, major, study_program: studyProgram, class: className, batch });
+    const { data } = await baseAxios.put(`/courses/${courseId}`, { title, description });
     return data;
   } catch (error) {
     console.error('Failed edit course:', error);
@@ -120,6 +120,26 @@ export async function showAssignment(courseId, weekId, assignmentId) {
     return data;
   } catch (error) {
     console.error("Failed show assignment:", error);
+    throw error;
+  }
+}
+
+export async function deleteMaterial(courseId, weekId, materialId) {
+  try {
+    const { data } = await baseAxios.delete(`/courses/${courseId}/weeks/${weekId}/materials/${materialId}`);
+    return data;
+  } catch (error) {
+    console.error('Failed delete material:', error);
+    throw error;
+  }
+}
+
+export async function deleteAssignment(courseId, weekId, assignmentId) {
+  try {
+    const { data } = await baseAxios.delete(`/courses/${courseId}/weeks/${weekId}/assignments/${assignmentId}`);
+    return data;
+  } catch (error) {
+    console.error('Failed delete material:', error);
     throw error;
   }
 }

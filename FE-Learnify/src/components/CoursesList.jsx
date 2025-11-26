@@ -168,8 +168,8 @@ export default function CoursesList() {
 
                 {/* Kartu course */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredCourses.map((course) => (
-                        <CourseCard course={course} />
+                    {filteredCourses.map((course, index) => (
+                        <CourseCard key={index} course={course} />
                     ))}
                 </div>
 
@@ -190,7 +190,6 @@ const CourseCard = (course) => {
 
     return (
         <div
-            key={course.course.id}
             className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between hover:shadow-md transition-shadow"
         >
             <div className="flex flex-col ">
