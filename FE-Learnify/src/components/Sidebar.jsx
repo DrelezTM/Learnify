@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Menu, X, ChevronDown, ClipboardCheck, Calendar, MessageCircle, LogOut, BookOpen } from 'lucide-react';
+import { Home, Menu, X, ChevronDown, ClipboardCheck, Calendar, FileText, LogOut, BookOpen } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { getInitials } from '@/lib/utils';
@@ -31,6 +31,13 @@ export default function Sidebar() {
       name: 'Schedule',
       icon: Calendar,
       href: '/schedule',
+
+    },
+
+    {
+      name: 'Surat keterangan',
+      icon: FileText,
+      href: '/keterangan',
 
     },
 

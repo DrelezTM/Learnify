@@ -1,6 +1,5 @@
 import { baseAxios } from "../baseAxios";
 
-// Fetching Courses
 export async function fetchCourses() {
     try {
         const { data } = await baseAxios.get(`/courses`);
