@@ -39,7 +39,7 @@ Route::prefix('api')->group(function() {
     Route::resource('/courses/{courseId}/weeks/{weekId}/assignments', AssignmentController::class)->only(['store', 'destroy', 'show'])->middleware('auth:sanctum');
     Route::resource('/courses/{courseId}/weeks/{weekId}/assignments/{assignmentId}/submissions', AssignmentSubmissionController::class)->middleware('auth:sanctum');
 
-    Route::get('/schedules', [ ScheduleController::class, 'index' ]);
+    Route::get('/schedules', [ ScheduleController::class, 'getSchedule' ])->middleware('auth:sanctum');
 
     // Attendances
     Route::resource('/attendances/sessions', AttendanceSessionController::class);
