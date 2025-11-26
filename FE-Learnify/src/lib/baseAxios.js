@@ -10,7 +10,9 @@ export const baseAxios = axios.create({
 });
 
 baseAxios.interceptors.request.use(config => {
-    const token = getCookie("token")
+    const token = getCookie("token");
+    config.headers.Accept = 'application/json';
+    
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }

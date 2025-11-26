@@ -116,12 +116,13 @@ export default function DetailCourse() {
   if (loading) {
     return (
       <div
-        className="min-h-screen bg-gray-50 flex items-center justify-center transition-all duration-300"
+        className="min-h-screen bg-gray-50 flex items-center justify-center transition-all duration-300 w-full"
         style={{ marginLeft: `${sidebarWidth}px` }}
       >
-        <p className="text-2xl font-semibold text-blue-600 animate-pulse">
-          Memuat detail course...
-        </p>
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-gray-500 font-medium">Loading data...</p>
+        </div>
       </div>
     );
   }
