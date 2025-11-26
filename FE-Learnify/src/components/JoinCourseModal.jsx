@@ -6,7 +6,7 @@ import {
     DialogTitle,
 } from "./ui/dialog"
 import { toast } from "react-hot-toast";
-import { joinCourse } from "@/lib/api";
+import { joinCourse } from "@/lib/api/courses-api";
 
 export default function JoinCourseModal({ isOpen, onClose, onSuccess }) {
 

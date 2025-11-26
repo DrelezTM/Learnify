@@ -1,10 +1,11 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { deleteAssignment, deleteMaterial, fetchProfile, submitAssignment } from "@/lib/api";
+import { deleteAssignment, deleteMaterial, submitAssignment } from "@/lib/api/courses-api";
 import { Download, FileText, Calendar, User, AlarmClock, Trash, MoreHorizontal, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
 import { toast } from "react-hot-toast";
+import { fetchProfile } from "@/lib/api/auth-api";
 
 export default function DetailMaterialAssignment({ courseId, data, type, authorId, onReload }) {
     if (!data) return <div className="p-8">Loading...</div>;

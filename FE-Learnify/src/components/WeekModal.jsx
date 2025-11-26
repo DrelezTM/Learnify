@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { addWeek, editWeek } from "@/lib/api";
+import { addWeek, editWeek } from "@/lib/api/courses-api";
 import {
     Dialog,
     DialogContent,

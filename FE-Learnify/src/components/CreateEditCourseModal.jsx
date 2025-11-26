@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { createCourse, editCourse } from "@/lib/api";
+import { createCourse, editCourse } from "@/lib/api/courses-api";
 import {
     Dialog,
     DialogContent,

@@ -1,7 +1,7 @@
 import Sidebar from '../../components/Sidebar'
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { showMaterial } from '@/lib/api';
+import { showMaterial } from '@/lib/api/courses-api';
 import DetailMaterialAssignment from '@/components/DetailMaterialAssignment';
 
 function MaterialDetailPage() {

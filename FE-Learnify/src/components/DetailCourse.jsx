@@ -14,12 +14,13 @@ import { toast } from "react-hot-toast";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { fetchDetailCourse, fetchProfile, deleteWeek, deleteCourse } from "@/lib/api";
+import { fetchDetailCourse, deleteWeek, deleteCourse } from "@/lib/api/courses-api";
 import WeekModal from "./WeekModal";
 import { formatDeadline } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
 import CreateEditCourseModal from "./CreateEditCourseModal";
 import AddAssignmentOrMaterialModal from "./AddAssignmentOrMaterialModal";
+import { fetchProfile } from "@/lib/api/auth-api";
 
 export default function DetailCourse() {
   const { id } = useParams();
@@ -38,7 +39,7 @@ export default function DetailCourse() {
   const [selectedWeekId, setSelectedWeekId] = useState(null);
 
   const [showEditCourseModal, setShowEditCourseModal] = useState(false);
-  
+
   const [sidebarWidth, setSidebarWidth] = useState(256);
 
   const isOwner = user?.id === course?.lecturer_id;
@@ -114,7 +115,7 @@ export default function DetailCourse() {
 
   if (loading) {
     return (
-      <div 
+      <div
         className="min-h-screen bg-gray-50 flex items-center justify-center transition-all duration-300"
         style={{ marginLeft: `${sidebarWidth}px` }}
       >
@@ -127,7 +128,7 @@ export default function DetailCourse() {
 
   if (!course) {
     return (
-      <div 
+      <div
         className="min-h-screen bg-gray-50 flex items-center justify-center transition-all duration-300"
         style={{ marginLeft: `${sidebarWidth}px` }}
       >
@@ -139,19 +140,17 @@ export default function DetailCourse() {
   }
 
   return (
-    <div 
-      className={`min-h-screen bg-gray-50 w-full transition-all duration-500 ease-out ${
-        fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-      }`}
+    <div
+      className={`min-h-screen bg-gray-50 w-full transition-all duration-500 ease-out ${fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+        }`}
       style={{ marginLeft: `${sidebarWidth}px` }}
     >
       <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 w-full pb-20">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* HEADER CARD */}
-          <Card 
-            className={`p-6 sm:p-10 shadow-lg rounded-3xl bg-white/30 backdrop-blur-xl border border-white/40 transition-all duration-700 ${
-              fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'
-            }`}
+          <Card
+            className={`p-6 sm:p-10 shadow-lg rounded-3xl bg-white/30 backdrop-blur-xl border border-white/40 transition-all duration-700 ${fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'
+              }`}
             style={{ transitionDelay: '100ms' }}
           >
             <div className="flex justify-between items-start">
@@ -223,10 +222,9 @@ export default function DetailCourse() {
             </div>
           </Card>
 
-          <Card 
-            className={`p-3 sm:p-4 shadow-xl rounded-3xl border border-gray-200 bg-white/70 backdrop-blur-lg transition-all duration-700 ${
-              fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
+          <Card
+            className={`p-3 sm:p-4 shadow-xl rounded-3xl border border-gray-200 bg-white/70 backdrop-blur-lg transition-all duration-700 ${fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+              }`}
             style={{ transitionDelay: '200ms' }}
           >
             {isOwner && (
@@ -265,16 +263,16 @@ export default function DetailCourse() {
               fadeIn={fadeIn}
             />
 
-        {/* Modal Add Content */}
-        {selectedWeekId && (
-          <AddAssignmentOrMaterialModal
-            weekId={selectedWeekId}
-            courseId={course.id}
-            isOpen={showModalWeekContent}
-            onClose={() => setShowModalWeekContent(false)}
-            onSuccess={loadCourse}
-          />
-        )}
+            {/* Modal Add Content */}
+            {selectedWeekId && (
+              <AddAssignmentOrMaterialModal
+                weekId={selectedWeekId}
+                courseId={course.id}
+                isOpen={showModalWeekContent}
+                onClose={() => setShowModalWeekContent(false)}
+                onSuccess={loadCourse}
+              />
+            )}
 
             {/* edit course modal */}
             <CreateEditCourseModal
@@ -316,17 +314,15 @@ const WeeksList = ({ weeks, isOwner, course, reloadWeeks, onEditWeek, onAddConte
         const isOpen = openWeek === week.id;
 
         return (
-          <div 
-            key={week.id} 
-            className={`border rounded-xl overflow-hidden shadow-sm bg-white transition-all duration-500 hover:shadow-md ${
-              fadeIn ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
-            }`}
+          <div
+            key={week.id}
+            className={`border rounded-xl overflow-hidden shadow-sm bg-white transition-all duration-500 hover:shadow-md ${fadeIn ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
+              }`}
             style={{ transitionDelay: `${300 + index * 100}ms` }}
           >
             <div
-              className={`flex items-center justify-between p-4 cursor-pointer transition-all duration-300 ${
-                isOpen ? "bg-blue-50" : "bg-gray-50 hover:bg-gray-100"
-              }`}
+              className={`flex items-center justify-between p-4 cursor-pointer transition-all duration-300 ${isOpen ? "bg-blue-50" : "bg-gray-50 hover:bg-gray-100"
+                }`}
               onClick={() => toggleWeek(week.id)}
             >
               <div className="flex items-center gap-3 flex-1">

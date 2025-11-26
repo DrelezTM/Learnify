@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { toast } from "react-hot-toast";
-import { addAssignments, addMaterials } from "@/lib/api";
+import { addAssignments, addMaterials } from "@/lib/api/courses-api";
 
 export default function AddAssignmentOrMaterialModal({ isOpen, onClose, courseId, weekId, onSuccess }) {
     const [type, setType] = useState("material"); // material / assignment
@@ -46,7 +46,7 @@ export default function AddAssignmentOrMaterialModal({ isOpen, onClose, courseId
                 formData.append("description", description || "");
                 formData.append("deadline", deadline);
 
-                const [datePart, timePart] = deadline.split("T"); 
+                const [datePart, timePart] = deadline.split("T");
                 const formattedDeadline = `${datePart} ${timePart}:00`;
                 formData.append("deadline", formattedDeadline);
 

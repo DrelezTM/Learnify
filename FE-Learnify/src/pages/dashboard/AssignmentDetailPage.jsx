@@ -2,7 +2,7 @@ import Sidebar from '../../components/Sidebar'
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import DetailMaterialAssignment from '@/components/DetailMaterialAssignment';
-import { showAssignment } from '@/lib/api';
+import { showAssignment } from '@/lib/api/courses-api';
 
 function AssignmentDetailPage() {
     const { id, weekId, assignmentId } = useParams();

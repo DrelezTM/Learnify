@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { fetchCourses, fetchCoursesStudent } from "@/lib/api";
+import { fetchCourses, fetchCoursesStudent } from "@/lib/api/courses-api";
 import { Button } from "./ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import JoinCourseModal from "./JoinCourseModal";
@@ -17,7 +17,7 @@ export default function CoursesList() {
   const [showModalJoin, setShowModalJoin] = useState(false);
 
   const [search, setSearch] = useState("");
-  const [sidebarWidth, setSidebarWidth] = useState(256); 
+  const [sidebarWidth, setSidebarWidth] = useState(256);
 
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -144,7 +144,7 @@ export default function CoursesList() {
 
   if (loading)
     return (
-      <div 
+      <div
         className="min-h-screen bg-gray-50 flex items-center justify-center transition-all duration-300 w-full"
         style={{ marginLeft: `${sidebarWidth}px` }}
       >
@@ -156,19 +156,17 @@ export default function CoursesList() {
     );
 
   return (
-    <div 
-      className={`min-h-screen bg-gray-50 transition-all duration-500 ease-out w-full ${
-        isTransitioning ? 'opacity-0 scale-95' : fadeIn ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-      }`}
+    <div
+      className={`min-h-screen bg-gray-50 transition-all duration-500 ease-out w-full ${isTransitioning ? 'opacity-0 scale-95' : fadeIn ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+        }`}
       style={{ marginLeft: `${sidebarWidth}px` }}
     >
       <div className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6 w-full pb-20">
         <div className="max-w-7xl mx-auto">
           {/* Search Bar & Actions */}
-          <div 
-            className={`flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8 transition-all duration-700 ${
-              fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'
-            }`}
+          <div
+            className={`flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8 transition-all duration-700 ${fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'
+              }`}
             style={{ transitionDelay: '100ms' }}
           >
             <div className="flex-1 relative">
@@ -199,10 +197,9 @@ export default function CoursesList() {
           </div>
 
           {/* Header Section */}
-          <div 
-            className={`mb-6 transition-all duration-700 ${
-              fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'
-            }`}
+          <div
+            className={`mb-6 transition-all duration-700 ${fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'
+              }`}
             style={{ transitionDelay: '200ms' }}
           >
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 sm:justify-between">
@@ -233,9 +230,9 @@ export default function CoursesList() {
           {/* Course Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {filteredCourses.map((course, index) => (
-              <CourseCard 
-                key={index} 
-                course={course} 
+              <CourseCard
+                key={index}
+                course={course}
                 onNavigate={smoothNavigate}
                 index={index}
                 fadeIn={fadeIn}
@@ -245,10 +242,9 @@ export default function CoursesList() {
 
           {/* Empty State */}
           {filteredCourses.length === 0 && (
-            <div 
-              className={`text-center py-12 transition-all duration-700 ${
-                fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-              }`}
+            <div
+              className={`text-center py-12 transition-all duration-700 ${fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                }`}
               style={{ transitionDelay: '300ms' }}
             >
               <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
@@ -266,10 +262,9 @@ export default function CoursesList() {
 
 const CourseCard = ({ course, onNavigate, index, fadeIn }) => {
   return (
-    <div 
-      className={`bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 flex flex-col justify-between hover:shadow-xl hover:-translate-y-2 transition-all duration-500 ${
-        fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-      }`}
+    <div
+      className={`bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 flex flex-col justify-between hover:shadow-xl hover:-translate-y-2 transition-all duration-500 ${fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
       style={{ transitionDelay: `${300 + index * 100}ms` }}
     >
       <div className="flex flex-col">

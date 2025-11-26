@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Home, Menu, X, ChevronDown, ClipboardCheck, Calendar, MessageCircle, LogOut, BookOpen } from 'lucide-react';
-import { fetchLogout } from '@/lib/api';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { getInitials } from '@/lib/utils';
+import { fetchLogout } from '@/lib/api/auth-api';
 
 export default function Sidebar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);

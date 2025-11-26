@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Mail, Lock, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { fetchLogin } from "@/lib/api";
 import { toast } from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { fetchLogin } from "@/lib/api/auth-api";
 
 function LoginPage() {
     const [email, setEmail] = useState("");
