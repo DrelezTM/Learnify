@@ -41,7 +41,7 @@ export default function AddAssignmentOrMaterialModal({ isOpen, onClose, courseId
                 formData.append("content", description || "");
 
                 await addMaterials(courseId, weekId, formData);
-                toast.success("Material berhasil ditambahkan!");
+                toast.success("Materi berhasil ditambahkan!");
             } else if (type === "assignment") {
                 formData.append("description", description || "");
                 formData.append("deadline", deadline);

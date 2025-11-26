@@ -13,7 +13,12 @@ export default function DetailMaterialAssignment({ courseId, data, type, authorI
     const [author, setAuthor] = useState("");
     const { user } = useAuth();
 
-    const isOwner = user?.id === data?.author_id || authorId;
+    const isOwner =
+        Number(user?.id) === Number(data?.author_id) ||
+        Number(user?.id) === Number(authorId);
+
+        console.log(isOwner)
+
     const [files, setFiles] = useState([]);
 
     // for lecturer to see all submitters

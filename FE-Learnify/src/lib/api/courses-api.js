@@ -61,6 +61,16 @@ export async function fetchCoursesStudent() {
     }
 }
 
+export async function studentLeaveCourse(id) {
+    try {
+        const { data } = await baseAxios.delete(`/courses/${id}/leave`);
+        return data;
+    } catch (error) {
+        console.error('Failed to leave course:', error);
+        throw error;
+    }
+}
+
 export async function fetchDetailCourse(id) {
     try {
         const { data } = await baseAxios.get(`/courses/${id}`);

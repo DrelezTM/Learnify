@@ -38,13 +38,13 @@ function LoginPage() {
         <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
             {/* Left Side - Illustration */}
             <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 p-12 items-center justify-center relative overflow-hidden">
-                
+
                 <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
                 <div className="absolute bottom-20 right-20 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
 
                 <div className="relative z-10">
                     <div className="relative w-96 h-96 flex items-center justify-center">
-                        
+
                         <div
                             className="absolute"
                             style={{
@@ -132,7 +132,7 @@ function LoginPage() {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-3xl shadow-xl p-8 md:p-10">
+                    <form className="bg-white rounded-3xl shadow-xl p-8 md:p-10">
 
                         <div className="text-center mb-8">
                             <h1 className="text-3xl font-bold text-gray-800 mb-2">Login</h1>
@@ -201,7 +201,7 @@ function LoginPage() {
                             </div>
 
                         </div>
-                    </div>
+                    </form>
 
                     <p className="text-center text-sm text-gray-500 mt-6">
                         © 2024 Learnify. All rights reserved.
