@@ -27,6 +27,7 @@ Route::prefix('api')->group(function() {
     Route::get('/user/show/{id}', [ UserController::class, 'show' ])->middleware('auth:sanctum');
 
     Route::get('/attendance/today', [AttendanceController::class, 'index'])->middleware('auth:sanctum');
+    Route::post('/attendance/session', [AttendanceController::class, 'createSession'])->middleware('auth:sanctum');
     Route::post('/attendance', [AttendanceController::class, 'store'])->middleware('auth:sanctum');
 
     Route::post('/courses/join', [ EnrollmentController::class, 'enrollCourse' ])->middleware('auth:sanctum');

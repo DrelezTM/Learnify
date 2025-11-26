@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Mail, Lock, BookOpen } from "lucide-react";
+import { Mail, Lock, BookOpen, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { fetchLogin } from "@/lib/api/auth-api";
 import { toast } from "react-hot-toast";
@@ -9,6 +9,9 @@ function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+
+    
+    const [showPassword, setShowPassword] = useState(false);
 
     const navigate = useNavigate();
     const { setUser } = useAuth();
@@ -36,15 +39,15 @@ function LoginPage() {
 
     return (
         <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-            {/* Left Side - Illustration */}
+          
             <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 p-12 items-center justify-center relative overflow-hidden">
-
+                
                 <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
                 <div className="absolute bottom-20 right-20 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
 
                 <div className="relative z-10">
                     <div className="relative w-96 h-96 flex items-center justify-center">
-
+                        
                         <div
                             className="absolute"
                             style={{
@@ -132,7 +135,7 @@ function LoginPage() {
                         </div>
                     </div>
 
-                    <form className="bg-white rounded-3xl shadow-xl p-8 md:p-10">
+                    <div className="bg-white rounded-3xl shadow-xl p-8 md:p-10">
 
                         <div className="text-center mb-8">
                             <h1 className="text-3xl font-bold text-gray-800 mb-2">Login</h1>
@@ -162,15 +165,25 @@ function LoginPage() {
                                     Password
                                 </label>
                                 <div className="relative">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                                    <input
-                                        type="password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        placeholder="••••••••"
-                                        className="w-full pl-12 pr-4 py-3.5 rounded-xl bg-gray-50 text-gray-800 placeholder:text-gray-400 border border-gray-200 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
-                                    />
-                                </div>
+    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+
+    <input
+        type={showPassword ? "text" : "password"}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="••••••••"
+        className="w-full pl-12 pr-12 py-3.5 rounded-xl bg-gray-50 text-gray-800 placeholder:text-gray-400 border border-gray-200 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+    />
+
+    <button
+        type="button"
+        onClick={() => setShowPassword(!showPassword)}
+        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+    >
+        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+    </button>
+</div>
+
                             </div>
 
                             <button
@@ -191,21 +204,8 @@ function LoginPage() {
                                 )}
                             </button>
 
-                            <div className="text-center">
-                                <p className="text-gray-600">
-                                    Belum punya akun?{' '}
-                                    <a href="#" className="text-blue-600 hover:text-blue-700 font-semibold">
-                                        Daftar sekarang
-                                    </a>
-                                </p>
-                            </div>
-
-                        </div>
-                    </form>
-
-                    <p className="text-center text-sm text-gray-500 mt-6">
-                        © 2024 Learnify. All rights reserved.
-                    </p>
+                          </div>
+                          </div>
                 </div>
             </div>
         </div>
@@ -213,3 +213,4 @@ function LoginPage() {
 }
 
 export default LoginPage;
+
