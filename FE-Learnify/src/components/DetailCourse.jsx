@@ -9,12 +9,13 @@ import {
   Pencil,
   Trash,
   MoreHorizontal,
+  LogOut,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { useAuth } from "@/contexts/AuthContext";
-import { fetchDetailCourse, deleteWeek, deleteCourse } from "@/lib/api/courses-api";
+import { fetchDetailCourse, deleteWeek, deleteCourse, studentLeaveCourse } from "@/lib/api/courses-api";
 import WeekModal from "./WeekModal";
 import { formatDeadline } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
@@ -43,6 +44,7 @@ export default function DetailCourse() {
   const [sidebarWidth, setSidebarWidth] = useState(256);
 
   const isOwner = user?.id === course?.lecturer_id;
+  const isLecturer = user?.role == "lecturer";
 
   // Trigger fade-in animation
   useEffect(() => {
@@ -159,39 +161,60 @@ export default function DetailCourse() {
                 {course.title}
               </h1>
 
-              {isOwner && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button className="h-8 w-8 text-gray-700 shadow-none hover:scale-110 transition-transform">
-                      <MoreHorizontal size={16} />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() => setShowEditCourseModal(true)}
-                      className="flex hover:cursor-pointer hover:opacity-80 transition-all items-center gap-2"
-                    >
-                      <Pencil size={16} /> Edit Course
-                    </DropdownMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="h-8 w-8 text-gray-700 shadow-none hover:scale-110 transition-transform">
+                    <MoreHorizontal size={16} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {(isOwner && isLecturer) ? (
+                    <>
+                      <DropdownMenuItem
+                        onClick={() => setShowEditCourseModal(true)}
+                        className="flex hover:cursor-pointer hover:opacity-80 transition-all items-center gap-2"
+                      >
+                        <Pencil size={16} /> Edit Course
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={async () => {
+                          if (!confirm(`Yakin ingin menghapus "${course.title}"?`)) return;
+
+                          try {
+                            await deleteCourse(course.id);
+                            toast.success("Course berhasil dihapus");
+                            window.location.href = "/courses";
+                          } catch (error) {
+                            toast.error("Gagal menghapus course");
+                          }
+                        }}
+                        className="flex hover:cursor-pointer hover:opacity-80 transition-all items-center gap-2 text-red-600"
+                      >
+                        <Trash size={16} /> Hapus Course
+                      </DropdownMenuItem>
+                    </>
+                  ) : !(isOwner && isLecturer) ? (
                     <DropdownMenuItem
                       onClick={async () => {
-                        if (!confirm(`Yakin ingin menghapus "${course.title}"?`)) return;
+                        if (!confirm(`Yakin ingin keluar dari "${course.title}"?`)) return;
 
                         try {
-                          await deleteCourse(course.id);
-                          toast.success("Course berhasil dihapus");
+                          await studentLeaveCourse(course.id);
+                          toast.success(`Berhasil keluar dari "${course.title}"?`);
                           window.location.href = "/courses";
                         } catch (error) {
-                          toast.error("Gagal menghapus course");
+                          toast.error("Gagal keluar course!");
                         }
                       }}
                       className="flex hover:cursor-pointer hover:opacity-80 transition-all items-center gap-2 text-red-600"
                     >
-                      <Trash size={16} /> Hapus Course
+                      <LogOut size={16} /> Keluar Course
                     </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
+                  ) : (
+                    <></>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             <p className="text-base sm:text-lg text-gray-600 mt-2">
