@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Attendance_Session;
+use App\Models\AttendanceSession;
 
 class AttendanceSessionController extends Controller
 {
     public function index()
     {
-        $items = Attendance_Session::all();
+        $items = AttendanceSession::all();
 
         return response()->json([
             'success' => true,
@@ -19,7 +19,7 @@ class AttendanceSessionController extends Controller
 
     public function show($id)
     {
-        $item = Attendance_Session::find($id);
+        $item = AttendanceSession::find($id);
 
         if (! $item) {
             return response()->json([
