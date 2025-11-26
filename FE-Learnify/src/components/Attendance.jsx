@@ -1,44 +1,15 @@
 import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
+import { fetchTodaySessions, submitAttendance } from "@/lib/api/attendance-api";
 import { Button } from "@/components/ui/button";
 import {
     Table,
     TableBody,
     TableCell,
-    TableHead,
-    TableHeader,
     TableRow,
 } from "@/components/ui/table";
 
-// --- Data Contoh untuk Absensi Hari Ini ---
-const todayCourses = [
-    {
-        id: 1,
-        matkul: "Pemrograman Lanjut",
-        dosen: "Ir. John Doe, M.Kom.",
-        jam: "08:00 - 09:40 WIB",
-        lokasi: "Ruang Lab 301",
-        jenisPertemuan: "Teori & Praktikum",
-    },
-    {
-        id: 2,
-        matkul: "Sistem Basis Data",
-        dosen: "Dr. Siti Aminah, S.T., M.Sc.",
-        jam: "10:00 - 11:40 WIB",
-        lokasi: "Teori & Teori",
-        jenisPertemuan: "Online via Zoom",
-    },
-];
-
-// --- Fungsi Helper untuk Format Tanggal ---
-const getFormattedDate = () => {
-    const today = new Date();
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    return today.toLocaleDateString('id-ID', options);
-};
-
 // --- Komponen Header (Tanggal Sistem) ---
-const Header = ({ fadeIn }) => {
+const Header = ({ fadeIn, dateString }) => {
     return (
         <header className={`py-8 px-10 bg-gradient-to-r from-blue-50 to-white border-b border-blue-100 shadow-sm transition-all duration-700 ${
             fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'
@@ -47,27 +18,40 @@ const Header = ({ fadeIn }) => {
                 Absensi Kedatangan
             </h1>
             <p className="text-gray-600 mt-2">
-                Hari Ini: <span className="font-medium text-gray-800">{getFormattedDate()}</span>
+                Hari Ini: <span className="font-medium text-gray-800">{dateString || "Memuat..."}</span>
             </p>
         </header>
     );
 };
 
 // --- Komponen Tabel Absensi ---
-const AttendanceTable = ({ fadeIn }) => {
+const AttendanceTable = ({ fadeIn, sessions, isLoading, onAttend, isSubmitting }) => {
+    
+    if (isLoading) {
+        return <div className="p-10 text-center text-gray-500">Sedang memuat jadwal...</div>;
+    }
+
+    if (sessions.length === 0) {
+        return (
+            <div className={`p-10 text-center text-gray-500 transition-all duration-700 ${fadeIn ? 'opacity-100' : 'opacity-0'}`}>
+                Tidak ada jadwal kuliah hari ini.
+            </div>
+        );
+    }
+
     return (
         <div className="p-4 sm:p-8">
             <h2 className={`text-lg sm:text-xl font-semibold mb-4 text-gray-700 transition-all duration-700 ${
                 fadeIn ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
             }`}
             style={{ transitionDelay: '200ms' }}>
-                Mata Kuliah Hari Ini ({todayCourses.length} Sesi)
+                Mata Kuliah Hari Ini ({sessions.length} Sesi)
             </h2>
 
             <div className="space-y-6">
                 <Table>
                     <TableBody>
-                        {todayCourses.map((course, index) => (
+                        {sessions.map((course, index) => (
                             <TableRow key={course.id} className="border-0">
                                 <TableCell className="p-0 pb-6">
                                     <div 
@@ -114,8 +98,22 @@ const AttendanceTable = ({ fadeIn }) => {
                                             </div>
                                         </div>
 
-                                        <Button className="w-full py-6 px-6 bg-blue-500 hover:bg-blue-600 text-white font-semibold !rounded-xl shadow-lg transition-all duration-200 text-base">
-                                            HADIR
+                                        {/* Dynamic Button Logic */}
+                                        <Button 
+                                            onClick={() => onAttend(course.id)}
+                                            disabled={course.has_attended || !course.can_attend || isSubmitting}
+                                            className={`w-full py-6 px-6 font-semibold !rounded-xl shadow-lg transition-all duration-200 text-base ${
+                                                course.has_attended 
+                                                    ? "bg-green-600 hover:bg-green-700 text-white cursor-default"
+                                                    : !course.can_attend 
+                                                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                                        : "bg-blue-500 hover:bg-blue-600 text-white"
+                                            }`}
+                                        >
+                                            {course.has_attended 
+                                                ? (course.status_text === 'LATE' ? "HADIR (TERLAMBAT)" : "SUDAH HADIR")
+                                                : (!course.can_attend ? "BELUM DIBUKA / SELESAI" : (isSubmitting ? "MEMPROSES..." : "HADIR"))
+                                            }
                                         </Button>
                                     </div>
                                 </TableCell>
@@ -132,13 +130,49 @@ const AttendanceTable = ({ fadeIn }) => {
 export default function Attendance() {
     const [sidebarWidth, setSidebarWidth] = useState(256);
     const [fadeIn, setFadeIn] = useState(false);
+    
+    // Dynamic State
+    const [sessions, setSessions] = useState([]);
+    const [dateString, setDateString] = useState("");
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Trigger fade-in animation
+    // 1. Fetch Data
+    const loadData = async () => {
+        try {
+            const data = await fetchTodaySessions();
+            setSessions(data.sessions);
+            setDateString(data.date);
+        } catch (error) {
+            console.error("Error loading attendance:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // 2. Handle Attend
+    const handleAttend = async (sessionId) => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+
+        try {
+            await submitAttendance(sessionId);
+            // Refresh data to show "SUDAH HADIR" status
+            await loadData();
+        } catch (error) {
+            const msg = error.response?.data?.message || "Gagal absen";
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    // Trigger fade-in animation and fetch data
     useEffect(() => {
         setTimeout(() => setFadeIn(true), 50);
+        loadData();
     }, []);
 
-    // Monitor sidebar width changes
+    // Monitor sidebar width changes (Original Logic)
     useEffect(() => {
         const detectSidebarWidth = () => {
             const sidebar = document.querySelector('.from-blue-600');
@@ -175,8 +209,14 @@ export default function Attendance() {
                 height: '100vh'
             }}
         >
-            <Header fadeIn={fadeIn} />
-            <AttendanceTable fadeIn={fadeIn} />
+            <Header fadeIn={fadeIn} dateString={dateString} />
+            <AttendanceTable 
+                fadeIn={fadeIn} 
+                sessions={sessions}
+                isLoading={isLoading}
+                onAttend={handleAttend}
+                isSubmitting={isSubmitting}
+            />
         </div>
     );
 }

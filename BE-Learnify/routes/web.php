@@ -8,6 +8,7 @@ use App\Http\Controllers\WeekController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\AssignmentSubmissionController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceSessionController;
 use App\Http\Controllers\AttendanceRecordController;
 use App\Http\Controllers\LectureApprovalController;
@@ -24,6 +25,9 @@ Route::prefix('api')->group(function() {
     Route::delete('/logout', [ UserController::class, 'logout' ])->middleware('auth:sanctum');
     Route::get('/me', [ UserController::class, 'me' ])->middleware('auth:sanctum');
     Route::get('/user/show/{id}', [ UserController::class, 'show' ])->middleware('auth:sanctum');
+
+    Route::get('/attendance/today', [AttendanceController::class, 'index'])->middleware('auth:sanctum');
+    Route::post('/attendance', [AttendanceController::class, 'store'])->middleware('auth:sanctum');
 
     Route::post('/courses/join', [ EnrollmentController::class, 'enrollCourse' ])->middleware('auth:sanctum');
     Route::delete('/courses/{id}/leave', [ EnrollmentController::class, 'unenrollCourse' ])->middleware('auth:sanctum');
