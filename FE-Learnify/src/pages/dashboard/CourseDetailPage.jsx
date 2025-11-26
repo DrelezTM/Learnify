@@ -5,7 +5,7 @@ import Sidebar from '../../components/Sidebar'
 function CourseDetailPage() {
 
     return (
-        <div className="flex h-screen ml-64">
+        <div className="flex h-screen">
             <Sidebar />
             <DetailCourse />
         </div>

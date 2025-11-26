@@ -2,10 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import CourseListPage from "./pages/dashboard/CourseListPage";
 import LoginPage from "./pages/authentication/LoginPage";
 import ProtectedRoute from "./ProtectedRoute";
-import Schedule from "./components/Schedule/Calenderview";
 import SchedulePage from "./pages/dashboard/SchedulePage";
 import AttendancePage from "./pages/dashboard/AttendancePage";
-import Home from "./pages/dashboard/Home";
 import { AuthProvider } from "./contexts/AuthContext";
 import CourseDetailPage from "./pages/dashboard/CourseDetailPage";
 import MaterialDetailPage from "./pages/dashboard/MaterialDetailPage";
@@ -24,44 +22,49 @@ function App() {
           <Route
             path="/courses"
             element={
-              <CourseListPage />
+
+              <ProtectedRoute>
+                <CourseListPage />
+              </ProtectedRoute>
             }
           />
 
           <Route
             path="/Schedule"
             element={
-              <SchedulePage />
+              <ProtectedRoute>
+                <SchedulePage />
+              </ProtectedRoute>
             }
           />
 
-          <Route
-            path="/home"
-            element={
-              <Home />
-            }
-          />
 
 
 
           <Route
             path="/courses/:id"
             element={
-              <CourseDetailPage />
+              <ProtectedRoute>
+                <CourseDetailPage />
+              </ProtectedRoute>
             }
           />
 
           <Route
             path="/courses/:id/:weekId/material/:materialId"
             element={
-              <MaterialDetailPage />
+              <ProtectedRoute>
+                <MaterialDetailPage />
+              </ProtectedRoute>
             }
           />
 
           <Route
             path="/courses/:id/:weekId/assignment/:assignmentId"
             element={
-              <AssignmentDetailPage />
+              <ProtectedRoute>
+                <AssignmentDetailPage />
+              </ProtectedRoute>
             }
           />
 
@@ -69,7 +72,9 @@ function App() {
             path="/attendance"
             element={
 
-              <AttendancePage />
+              <ProtectedRoute>
+                <AttendancePage />
+              </ProtectedRoute>
 
             }
           />
