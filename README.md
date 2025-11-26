@@ -16,6 +16,10 @@ Website E-Learning yang cocok digunakan untuk Kampus dan Sekolah menggunakan Tek
   ```sh
   cd FE-Learnify
   ```
+* Install Dependencies
+  ```sh
+  npm install
+  ```
 * Starting
   ```sh
   npm run dev
@@ -25,6 +29,17 @@ Website E-Learning yang cocok digunakan untuk Kampus dan Sekolah menggunakan Tek
 * Open Back-End Folder
   ```sh
   cd BE-Learnify
+  ```
+* Install Dependencies
+  ```sh
+  composer install
+  ```
+* Migrating Database
+  ```sh
+  php artisan migrate
+  ```
+  ```sh
+  php artisan db:seed
   ```
 * Starting
   ```sh
