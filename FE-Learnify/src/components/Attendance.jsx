@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,17 +16,17 @@ const todayCourses = [
         id: 1,
         matkul: "Pemrograman Lanjut",
         dosen: "Ir. John Doe, M.Kom.",
-        jam: "08:00 - 09:40 WIB", // Durasi Jam
-        lokasi: "Ruang Lab 301", // Lokasi
-        jenisPertemuan: "Teori & Praktikum", // Jenis Pertemuan
+        jam: "08:00 - 09:40 WIB",
+        lokasi: "Ruang Lab 301",
+        jenisPertemuan: "Teori & Praktikum",
     },
     {
         id: 2,
         matkul: "Sistem Basis Data",
         dosen: "Dr. Siti Aminah, S.T., M.Sc.",
-        jam: "10:00 - 11:40 WIB", // Durasi Jam
-        lokasi: "Teori & Teori", // Lokasi
-        jenisPertemuan: "Online via Zoom", // Jenis Pertemuan
+        jam: "10:00 - 11:40 WIB",
+        lokasi: "Teori & Teori",
+        jenisPertemuan: "Online via Zoom",
     },
 ];
 
@@ -37,100 +38,83 @@ const getFormattedDate = () => {
 };
 
 // --- Komponen Header (Tanggal Sistem) ---
-const Header = () => {
+const Header = ({ fadeIn }) => {
     return (
-        <header className="py-8 px-10 bg-gradient-to-r from-blue-50 to-white border-b border-blue-100 shadow-sm">
-            <h1 className="text-3xl font-bold text-gray-800 animate-fade-in">
+        <header className={`py-8 px-10 bg-gradient-to-r from-blue-50 to-white border-b border-blue-100 shadow-sm transition-all duration-700 ${
+            fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'
+        }`}>
+            <h1 className="text-3xl font-bold text-gray-800">
                 Absensi Kedatangan
             </h1>
-            <p className="text-gray-600 mt-2 animate-slide-up">
+            <p className="text-gray-600 mt-2">
                 Hari Ini: <span className="font-medium text-gray-800">{getFormattedDate()}</span>
             </p>
-            
-            <style jsx>{`
-                @keyframes fade-in {
-                    from {
-                        opacity: 0;
-                        transform: translateY(-10px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-                
-                @keyframes slide-up {
-                    from {
-                        opacity: 0;
-                        transform: translateY(10px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                    }
-                }
-                
-                .animate-fade-in {
-                    animation: fade-in 0.6s ease-out;
-                }
-                
-                .animate-slide-up {
-                    animation: slide-up 0.6s ease-out 0.2s backwards;
-                }
-            `}</style>
         </header>
     );
 };
 
 // --- Komponen Tabel Absensi ---
-const AttendanceTable = () => {
+const AttendanceTable = ({ fadeIn }) => {
     return (
-        <div className="p-8">
-            <h2 className="text-xl font-semibold mb-4 text-gray-700">Mata Kuliah Hari Ini ({todayCourses.length} Sesi)</h2>
+        <div className="p-4 sm:p-8">
+            <h2 className={`text-lg sm:text-xl font-semibold mb-4 text-gray-700 transition-all duration-700 ${
+                fadeIn ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
+            }`}
+            style={{ transitionDelay: '200ms' }}>
+                Mata Kuliah Hari Ini ({todayCourses.length} Sesi)
+            </h2>
 
-            <div className="border rounded-lg overflow-hidden bg-white shadow-md">
+            <div className="space-y-6">
                 <Table>
-                    {/* Header Tabel */}
-                    <TableHeader className="bg-gray-50">
-                        <TableRow>
-                            {/* Menampilkan Matkul dan Dosen */}
-                            <TableHead className="w-[280px]">Mata Kuliah & Dosen Pengajar</TableHead>
-                            {/* Menampilkan Durasi Jam dan Tanggal Mulai */}
-                            <TableHead className="w-[180px]">Jadwal </TableHead>
-                            {/* Menampilkan Lokasi dan Jenis Pertemuan */}
-                            <TableHead className="w-[180px]">Lokasi & Jenis Pertemuan</TableHead>
-                            {/* Menampilkan Input Presensi dan Tombol Hadir */}
-                            <TableHead className="w-[300px] text-center">Presensi</TableHead>
-                        </TableRow>
-                    </TableHeader>
-
-                    {/* Isi Tabel */}
                     <TableBody>
-                        {todayCourses.map((course) => (
-                            <TableRow key={course.id}>
-                                {/* Kolom Matkul & Dosen */}
-                                <TableCell className="font-medium">
-                                    <p className="text-base font-semibold text-gray-800">{course.matkul}</p>
-                                    <p className="text-sm text-gray-500">Dosen: {course.dosen}</p>
-                                </TableCell>
+                        {todayCourses.map((course, index) => (
+                            <TableRow key={course.id} className="border-0">
+                                <TableCell className="p-0 pb-6">
+                                    <div 
+                                        className={`bg-white rounded-xl shadow-md border border-gray-200 p-4 sm:p-6 space-y-4 hover:shadow-xl transition-all duration-500 overflow-hidden ${
+                                            fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                                        }`}
+                                        style={{ transitionDelay: `${300 + index * 150}ms` }}
+                                    >
+                                        <div className="border-b pb-3">
+                                            <h3 className="text-lg font-bold text-gray-800 mb-1">
+                                                {course.matkul}
+                                            </h3>
+                                            <p className="text-sm text-gray-600">
+                                                Dosen: {course.dosen}
+                                            </p>
+                                        </div>
 
-                                {/* Kolom Jadwal (Durasi Jam & Tanggal Mulai) */}
-                                <TableCell>
-                                    <p className="text-sm text-gray-700 font-medium">{course.jam}</p>
-                                </TableCell>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <div className="bg-blue-50 rounded-xl p-3 hover:bg-blue-100 transition-all duration-300">
+                                                <p className="text-xs text-blue-700 font-semibold uppercase mb-1">
+                                                    Jadwal
+                                                </p>
+                                                <p className="text-sm font-medium text-gray-800">
+                                                    {course.jam}
+                                                </p>
+                                            </div>
 
-                                {/* Kolom Lokasi & Jenis Pertemuan */}
-                                <TableCell>
-                                    <p className="text-sm text-gray-700">{course.lokasi}</p>
-                                    <p className="text-xs text-gray-500">{course.jenisPertemuan}</p>
-                                </TableCell>
+                                            <div className="bg-purple-50 rounded-xl p-3 hover:bg-purple-100 transition-all duration-300">
+                                                <p className="text-xs text-purple-700 font-semibold uppercase mb-1">
+                                                    Lokasi
+                                                </p>
+                                                <p className="text-sm font-medium text-gray-800">
+                                                    {course.lokasi}
+                                                </p>
+                                            </div>
 
-                                {/* Kolom Presensi (Input & Tombol HADIR) */}
-                                <TableCell className="text-center">
-                                    <div className="flex flex-col items-center space-y-2">
-                                        {/* Tombol HADIR */}
-                                        <Button className="w-fit py-5 px-6 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-200"
-                                        >
+                                            <div className="bg-green-50 rounded-xl p-3 sm:col-span-2 hover:bg-green-100 transition-all duration-300">
+                                                <p className="text-xs text-green-700 font-semibold uppercase mb-1">
+                                                    Jenis Pertemuan
+                                                </p>
+                                                <p className="text-sm font-medium text-gray-800">
+                                                    {course.jenisPertemuan}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <Button className="w-full py-6 px-6 bg-blue-500 hover:bg-blue-600 text-white font-semibold !rounded-xl shadow-lg transition-all duration-200 text-base">
                                             HADIR
                                         </Button>
                                     </div>
@@ -140,17 +124,59 @@ const AttendanceTable = () => {
                     </TableBody>
                 </Table>
             </div>
-
         </div>
     );
 };
 
 // --- Komponen Utama ---
 export default function Attendance() {
+    const [sidebarWidth, setSidebarWidth] = useState(256);
+    const [fadeIn, setFadeIn] = useState(false);
+
+    // Trigger fade-in animation
+    useEffect(() => {
+        setTimeout(() => setFadeIn(true), 50);
+    }, []);
+
+    // Monitor sidebar width changes
+    useEffect(() => {
+        const detectSidebarWidth = () => {
+            const sidebar = document.querySelector('.from-blue-600');
+            if (sidebar) {
+                const width = sidebar.offsetWidth;
+                setSidebarWidth(width);
+            }
+        };
+
+        detectSidebarWidth();
+
+        const sidebar = document.querySelector('.from-blue-600');
+        if (sidebar) {
+            const observer = new MutationObserver(detectSidebarWidth);
+            observer.observe(sidebar, {
+                attributes: true,
+                attributeFilter: ['class', 'style']
+            });
+
+            const interval = setInterval(detectSidebarWidth, 100);
+
+            return () => {
+                observer.disconnect();
+                clearInterval(interval);
+            };
+        }
+    }, []);
+
     return (
-        <div className="flex-1 flex flex-col bg-gray-100 min-h-screen">
-            <Header />
-            <AttendanceTable />
+        <div 
+            className="flex-1 bg-gray-100 w-full transition-all duration-300 ease-in-out overflow-y-auto"
+            style={{ 
+                marginLeft: `${sidebarWidth}px`,
+                height: '100vh'
+            }}
+        >
+            <Header fadeIn={fadeIn} />
+            <AttendanceTable fadeIn={fadeIn} />
         </div>
     );
 }

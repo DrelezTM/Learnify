@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Calendar, Clock, Plus, X, Trash2, ChevronLeft, ChevronRight, GripVertical, Edit2 } from "lucide-react";
 
 export default function CalendarApp() {
@@ -18,9 +18,58 @@ export default function CalendarApp() {
   const [draggedEvent, setDraggedEvent] = useState(null);
   const [draggedOverDate, setDraggedOverDate] = useState(null);
   const [editingEventId, setEditingEventId] = useState(null);
+  const [fadeIn, setFadeIn] = useState(false);
+  
+  const [sidebarWidth, setSidebarWidth] = useState(256);
 
   const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
   const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+
+  // Trigger fade-in animation
+  useEffect(() => {
+    setTimeout(() => setFadeIn(true), 50);
+  }, []);
+
+  // Disable scroll when modal is open
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showModal]);
+
+  // Monitor sidebar width changes
+  useEffect(() => {
+    const detectSidebarWidth = () => {
+      const sidebar = document.querySelector('.from-blue-600');
+      if (sidebar) {
+        const width = sidebar.offsetWidth;
+        setSidebarWidth(width);
+      }
+    };
+
+    detectSidebarWidth();
+
+    const sidebar = document.querySelector('.from-blue-600');
+    if (sidebar) {
+      const observer = new MutationObserver(detectSidebarWidth);
+      observer.observe(sidebar, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+      });
+
+      const interval = setInterval(detectSidebarWidth, 100);
+
+      return () => {
+        observer.disconnect();
+        clearInterval(interval);
+      };
+    }
+  }, []);
 
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
   const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
@@ -56,7 +105,6 @@ export default function CalendarApp() {
     const isStart = dayDate.getTime() === startDate.getTime();
     const isEnd = dayDate.getTime() === endDate.getTime();
     
-    // Calculate how many days until end of week or event end
     const daysUntilWeekEnd = 6 - new Date(currentDate.getFullYear(), currentDate.getMonth(), day).getDay();
     const daysUntilEventEnd = Math.floor((endDate - dayDate) / (1000 * 60 * 60 * 24));
     const span = Math.min(daysUntilWeekEnd, daysUntilEventEnd) + 1;
@@ -77,7 +125,6 @@ export default function CalendarApp() {
     endDate.setHours(parseInt(eh), parseInt(em));
     
     if (editingEventId) {
-      // Update existing event
       setEvents(events.map(e => 
         e.id === editingEventId 
           ? { ...e, title: eventTitle, startDate: startDate, endDate: endDate, color: eventColor }
@@ -85,7 +132,6 @@ export default function CalendarApp() {
       ));
       setEditingEventId(null);
     } else {
-      // Add new event
       setEvents([...events, { 
         id: Date.now(), 
         title: eventTitle, 
@@ -152,7 +198,7 @@ export default function CalendarApp() {
   };
 
   const handleDayClick = (day) => {
-    if (draggedEvent) return; // Don't open modal if dragging
+    if (draggedEvent) return;
     setSelectedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
     setEventEndDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
     setShowModal(true);
@@ -176,7 +222,7 @@ export default function CalendarApp() {
           onClick={() => handleDayClick(day)}
           onDragOver={(e) => handleDragOver(e, day)}
           onDrop={(e) => handleDrop(e, day)}
-          className={`aspect-square p-2 rounded-2xl cursor-pointer transition-all duration-300 group relative ${
+          className={`min-h-[60px] sm:min-h-[80px] md:aspect-square p-1.5 sm:p-2 rounded-xl sm:rounded-2xl cursor-pointer transition-all duration-300 group relative ${
             draggedOverDate === day 
               ? "bg-blue-100 border-2 border-blue-400 scale-105" 
               : isToday(day) 
@@ -187,7 +233,7 @@ export default function CalendarApp() {
           }`}
         >
           <div className="flex flex-col h-full">
-            <div className={`text-sm font-semibold mb-1 ${isToday(day) ? "text-white" : "text-gray-700"}`}>
+            <div className={`text-xs sm:text-sm font-semibold mb-1 ${isToday(day) ? "text-white" : "text-gray-700"}`}>
               {day}
             </div>
             
@@ -204,14 +250,14 @@ export default function CalendarApp() {
                       key={e.id}
                       draggable
                       onDragStart={(ev) => handleDragStart(ev, e)}
-                      className="text-[10px] px-1.5 py-0.5 rounded-md text-white font-medium truncate shadow-sm cursor-move hover:shadow-md transition-all flex items-center gap-1"
+                      className="text-[8px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 rounded-md text-white font-medium truncate shadow-sm cursor-move hover:shadow-md transition-all flex items-center gap-0.5 sm:gap-1"
                       style={{ 
                         backgroundColor: e.color,
                         gridColumn: `span ${span}`
                       }}
                       onClick={(ev) => ev.stopPropagation()}
                     >
-                      <GripVertical className="w-2 h-2 flex-shrink-0 opacity-60" />
+                      <GripVertical className="w-2 h-2 flex-shrink-0 opacity-60 hidden sm:block" />
                       <span className="truncate">{e.title}</span>
                     </div>
                   );
@@ -220,7 +266,7 @@ export default function CalendarApp() {
             )}
             
             {!hasEvents && !isToday(day) && (
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-[10px] text-blue-500 font-medium mt-auto">
+              <div className="hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-[10px] text-blue-500 font-medium mt-auto">
                 + Tambah
               </div>
             )}
@@ -232,277 +278,305 @@ export default function CalendarApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl border border-white/20 p-6 md:p-8 mb-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl shadow-lg shadow-blue-500/30">
-                <Calendar className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  {monthNames[currentDate.getMonth()]}
-                </h1>
-                <p className="text-gray-500 text-sm font-medium">{currentDate.getFullYear()}</p>
-              </div>
-            </div>
-            
-            <div className="flex gap-3 w-full sm:w-auto">
-              <button
-                onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
-                className="flex-1 sm:flex-initial p-3 bg-white border-2 border-gray-200 hover:border-blue-500 hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 hover:text-white hover:shadow-lg hover:scale-105 text-gray-700 font-medium rounded-full transition-all duration-300"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setCurrentDate(new Date())}
-                className="flex-1 sm:flex-initial px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-full shadow-lg shadow-blue-500/30 hover:shadow-xl hover:scale-105 transition-all duration-300"
-              >
-                Bulan ini
-              </button>
-              <button
-                onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
-                className="flex-1 sm:flex-initial p-3 bg-white border-2 border-gray-200 hover:border-blue-500 hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 hover:text-white hover:shadow-lg hover:scale-105 text-gray-700 font-medium rounded-full transition-all duration-300"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-          {/* Calendar Grid */}
-          <div className="xl:col-span-3 bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl border border-white/20 p-6 md:p-8">
-            <div className="grid grid-cols-7 gap-3 mb-4">
-              {dayNames.map(day => (
-                <div key={day} className="text-center font-bold text-gray-600 py-2 text-xs md:text-sm">
-                  {day}
+    <div 
+      className={`bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 w-full transition-all duration-700 ease-out ${
+        showModal ? 'overflow-hidden' : 'overflow-y-auto'
+      } ${fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+      style={{ 
+        marginLeft: `${sidebarWidth}px`,
+        height: '100vh'
+      }}
+    >
+      <div className="p-4 md:p-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div 
+            className={`bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl border border-white/20 p-6 md:p-8 mb-8 transition-all duration-700 ${
+              fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'
+            }`}
+            style={{ transitionDelay: '100ms' }}
+          >
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl shadow-lg shadow-blue-500/30">
+                  <Calendar className="w-7 h-7 text-white" />
                 </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-7 gap-3">
-              {renderCalendar()}
-            </div>
-          </div>
-
-          {/* Event List */}
-          <div className="xl:col-span-1 bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl border border-white/20 p-6 md:p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/30">
-                <Clock className="w-5 h-5 text-white" />
-              </div>
-              <h2 className="text-lg md:text-xl font-bold text-gray-800">
-                Event Mendatang
-              </h2>
-            </div>
-            
-            <div className="space-y-3 max-h-[400px] md:max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-              {events.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Calendar className="w-8 h-8 text-gray-400" />
-                  </div>
-                  <p className="text-gray-500 text-sm font-medium">Belum ada event</p>
-                  <p className="text-gray-400 text-xs mt-1">Klik tanggal untuk menambah</p>
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    {monthNames[currentDate.getMonth()]}
+                  </h1>
+                  <p className="text-gray-500 text-sm font-medium">{currentDate.getFullYear()}</p>
                 </div>
-              ) : (
-                events
-                  .sort((a, b) => a.startDate - b.startDate)
-                  .map(event => {
-                    const duration = Math.ceil((event.endDate - event.startDate) / (1000 * 60 * 60 * 24));
-                    const isMultiDay = duration >= 1;
-                    
-                    return (
-                      <div
-                        key={event.id}
-                        className="group p-4 bg-gradient-to-br from-white to-gray-50 border-2 border-gray-100 rounded-2xl hover:border-blue-300 hover:shadow-lg hover:scale-[1.02] transition-all duration-300"
-                      >
-                        <div className="flex items-start gap-3">
-                          <div 
-                            className="w-1.5 h-full rounded-full flex-shrink-0 mt-1" 
-                            style={{ backgroundColor: event.color }}
-                          />
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-gray-800 truncate text-sm md:text-base mb-1">
-                              {event.title}
-                            </h3>
-                            <div className="flex flex-col gap-1 text-xs text-gray-500">
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">
-                                  {event.startDate.toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
-                                </span>
-                                {isMultiDay && (
-                                  <>
-                                    <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                                    <span className="font-medium">
-                                      {event.endDate.toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                              <span className="text-[10px] text-gray-400">
-                                {event.startDate.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })} - 
-                                {event.endDate.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
-                              </span>
-                              {isMultiDay && (
-                                <span className="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full w-fit font-medium">
-                                  {duration} hari
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex gap-1">
-                            <button
-                              onClick={() => editEvent(event)}
-                              className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all duration-300 flex-shrink-0"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => deleteEvent(event.id)}
-                              className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-300 flex-shrink-0"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Modal */}
-        {showModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
-            <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-md transform transition-all animate-in zoom-in duration-300 max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  {editingEventId ? "Edit Event" : "Tambah Event Baru"}
-                </h2>
-                <button 
-                  onClick={() => {
-                    setShowModal(false);
-                    setEditingEventId(null);
-                    setEventTitle("");
-                    setEventStartTime("10:00");
-                    setEventEndTime("11:00");
-                    setEventEndDate(null);
-                  }} 
-                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-300"
-                >
-                  <X className="w-6 h-6" />
-                </button>
               </div>
               
-              <div className="space-y-5">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Judul Event
-                  </label>
-                  <input
-                    type="text"
-                    value={eventTitle}
-                    onChange={(e) => setEventTitle(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
-                    placeholder="Masukkan judul event..."
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Tanggal Mulai
-                    </label>
-                    <input
-                      type="date"
-                      value={selectedDate?.toISOString().split('T')[0]}
-                      onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Tanggal Selesai
-                    </label>
-                    <input
-                      type="date"
-                      value={eventEndDate?.toISOString().split('T')[0]}
-                      onChange={(e) => setEventEndDate(new Date(e.target.value))}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Waktu Mulai
-                    </label>
-                    <input
-                      type="time"
-                      value={eventStartTime}
-                      onChange={(e) => setEventStartTime(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Waktu Selesai
-                    </label>
-                    <input
-                      type="time"
-                      value={eventEndTime}
-                      onChange={(e) => setEventEndTime(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-3">
-                    Warna Label
-                  </label>
-                  <div className="flex gap-3">
-                    {["#6366f1", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"].map(color => (
-                      <button
-                        key={color}
-                        onClick={() => setEventColor(color)}
-                        className={`w-11 h-11 rounded-full transition-all duration-300 hover:scale-110 shadow-lg ${
-                          eventColor === color ? "ring-4 ring-offset-2 ring-gray-300 scale-110" : "hover:shadow-xl"
-                        }`}
-                        style={{ backgroundColor: color }}
-                      />
-                    ))}
-                  </div>
-                </div>
-
+              <div className="flex gap-3 w-full sm:w-auto">
                 <button
-                  onClick={addEvent}
-                  className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-full shadow-lg shadow-blue-500/30 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 mt-6"
+                  onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}
+                  className="flex-1 sm:flex-initial p-3 bg-white border-2 border-gray-200 hover:border-blue-500 hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 hover:text-white hover:shadow-lg hover:scale-105 text-gray-700 font-medium rounded-full transition-all duration-300"
                 >
-                  {editingEventId ? (
-                    <>
-                      <Edit2 className="w-5 h-5" />
-                      Update Event
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-5 h-5" />
-                      Tambah Event
-                    </>
-                  )}
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setCurrentDate(new Date())}
+                  className="flex-1 sm:flex-initial px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-full shadow-lg shadow-blue-500/30 hover:shadow-xl hover:scale-105 transition-all duration-300"
+                >
+                  Bulan ini
+                </button>
+                <button
+                  onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}
+                  className="flex-1 sm:flex-initial p-3 bg-white border-2 border-gray-200 hover:border-blue-500 hover:bg-gradient-to-r hover:from-blue-600 hover:to-indigo-600 hover:text-white hover:shadow-lg hover:scale-105 text-gray-700 font-medium rounded-full transition-all duration-300"
+                >
+                  <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
             </div>
           </div>
-        )}
+
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            {/* Calendar Grid */}
+            <div 
+              className={`xl:col-span-3 bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl border border-white/20 p-4 sm:p-6 md:p-8 transition-all duration-700 ${
+                fadeIn ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
+              }`}
+              style={{ transitionDelay: '200ms' }}
+            >
+              <div className="grid grid-cols-7 gap-2 sm:gap-3 mb-4">
+                {dayNames.map(day => (
+                  <div key={day} className="text-center font-bold text-gray-600 py-2 text-xs sm:text-sm">
+                    {day}
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-7 gap-2 sm:gap-3">
+                {renderCalendar()}
+              </div>
+            </div>
+
+            {/* Event List */}
+            <div 
+              className={`xl:col-span-1 bg-white/80 backdrop-blur-lg rounded-3xl shadow-xl border border-white/20 p-6 md:p-8 transition-all duration-700 ${
+                fadeIn ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
+              }`}
+              style={{ transitionDelay: '300ms' }}
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/30">
+                  <Clock className="w-5 h-5 text-white" />
+                </div>
+                <h2 className="text-lg md:text-xl font-bold text-gray-800">
+                  Event Mendatang
+                </h2>
+              </div>
+              
+              <div className="space-y-3 max-h-[400px] md:max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                {events.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Calendar className="w-8 h-8 text-gray-400" />
+                    </div>
+                    <p className="text-gray-500 text-sm font-medium">Belum ada event</p>
+                    <p className="text-gray-400 text-xs mt-1">Klik tanggal untuk menambah</p>
+                  </div>
+                ) : (
+                  events
+                    .sort((a, b) => a.startDate - b.startDate)
+                    .map((event, idx) => {
+                      const duration = Math.ceil((event.endDate - event.startDate) / (1000 * 60 * 60 * 24));
+                      const isMultiDay = duration >= 1;
+                      
+                      return (
+                        <div
+                          key={event.id}
+                          className={`group p-4 bg-gradient-to-br from-white to-gray-50 border-2 border-gray-100 rounded-2xl hover:border-blue-300 hover:shadow-lg hover:scale-[1.02] transition-all duration-500 ${
+                            fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                          }`}
+                          style={{ transitionDelay: `${400 + idx * 100}ms` }}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div 
+                              className="w-1.5 h-full rounded-full flex-shrink-0 mt-1" 
+                              style={{ backgroundColor: event.color }}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-800 truncate text-sm md:text-base mb-1">
+                                {event.title}
+                              </h3>
+                              <div className="flex flex-col gap-1 text-xs text-gray-500">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium">
+                                    {event.startDate.toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
+                                  </span>
+                                  {isMultiDay && (
+                                    <>
+                                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+                                      <span className="font-medium">
+                                        {event.endDate.toLocaleDateString("id-ID", { day: "numeric", month: "short" })}
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
+                                <span className="text-[10px] text-gray-400">
+                                  {event.startDate.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })} - 
+                                  {event.endDate.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+                                </span>
+                                {isMultiDay && (
+                                  <span className="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full w-fit font-medium">
+                                    {duration} hari
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => editEvent(event)}
+                                className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all duration-300 flex-shrink-0"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => deleteEvent(event.id)}
+                                className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-300 flex-shrink-0"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Modal */}
+          {showModal && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300 overflow-y-auto">
+              <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-md transform transition-all animate-in zoom-in duration-300 my-8">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    {editingEventId ? "Edit Event" : "Tambah Event Baru"}
+                  </h2>
+                  <button 
+                    onClick={() => {
+                      setShowModal(false);
+                      setEditingEventId(null);
+                      setEventTitle("");
+                      setEventStartTime("10:00");
+                      setEventEndTime("11:00");
+                      setEventEndDate(null);
+                    }} 
+                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-300"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+                
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Judul Event
+                    </label>
+                    <input
+                      type="text"
+                      value={eventTitle}
+                      onChange={(e) => setEventTitle(e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
+                      placeholder="Masukkan judul event..."
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Tanggal Mulai
+                      </label>
+                      <input
+                        type="date"
+                        value={selectedDate?.toISOString().split('T')[0]}
+                        onChange={(e) => setSelectedDate(new Date(e.target.value))}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Tanggal Selesai
+                      </label>
+                      <input
+                        type="date"
+                        value={eventEndDate?.toISOString().split('T')[0]}
+                        onChange={(e) => setEventEndDate(new Date(e.target.value))}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Waktu Mulai
+                      </label>
+                      <input
+                        type="time"
+                        value={eventStartTime}
+                        onChange={(e) => setEventStartTime(e.target.value)}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Waktu Selesai
+                      </label>
+                      <input
+                        type="time"
+                        value={eventEndTime}
+                        onChange={(e) => setEventEndTime(e.target.value)}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-300"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Warna Label
+                    </label>
+                    <div className="flex gap-3">
+                      {["#6366f1", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"].map(color => (
+                        <button
+                          key={color}
+                          onClick={() => setEventColor(color)}
+                          className={`w-11 h-11 rounded-full transition-all duration-300 hover:scale-110 shadow-lg ${
+                            eventColor === color ? "ring-4 ring-offset-2 ring-gray-300 scale-110" : "hover:shadow-xl"
+                          }`}
+                          style={{ backgroundColor: color }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={addEvent}
+                    className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-full shadow-lg shadow-blue-500/30 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2 mt-6"
+                  >
+                    {editingEventId ? (
+                      <>
+                        <Edit2 className="w-5 h-5" />
+                        Update Event
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-5 h-5" />
+                        Tambah Event
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       
       <style jsx>{`

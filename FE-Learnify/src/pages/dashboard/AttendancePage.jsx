@@ -6,7 +6,7 @@ import Sidebar from '../../components/Sidebar'
 function AttendancePage() {
 
     return (
-        <div className="flex h-screen ml-64">
+        <div className="flex h-screen">
             <Sidebar />
             <Attendance />
 
