@@ -1,11 +1,13 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { deleteAssignment, deleteMaterial, deleteSubmission, submitAssignment } from "@/lib/api/courses-api";
-import { Download, FileText, Calendar, User, AlarmClock, Trash, MoreHorizontal, Upload } from "lucide-react";
+import { FileText, Calendar, User, AlarmClock, Trash, MoreHorizontal, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
 import { toast } from "react-hot-toast";
 import { fetchProfile } from "@/lib/api/auth-api";
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
 export default function DetailMaterialAssignment({ courseId, data, type, authorId, onReload }) {
     if (!data) return <div className="p-8">Data not found...</div>;
@@ -195,8 +197,7 @@ export default function DetailMaterialAssignment({ courseId, data, type, authorI
                             return (
                                 <a
                                     key={file.id}
-                                    href={file.file_path}
-                                    download
+                                    href={`${API_BASE}/storage/${file.file_path}`}
                                     className="flex items-center hover:cursor-pointer w-fit gap-x-5 bg-gray-50 border p-4 rounded-xl hover:bg-gray-100 transition"
                                 >
                                     <div className="flex items-center gap-3">
@@ -331,8 +332,7 @@ export default function DetailMaterialAssignment({ courseId, data, type, authorI
                             .find((s) => s.user_id === user.id)
                             ?.submission_files?.map((file) => (
                                 <a
-                                    href={file.file_path}
-                                    download
+                                    href={`${API_BASE}/storage/${file.file_path}`}
                                     key={file.id}
                                     className="flex justify-between items-center bg-white border p-3 rounded-xl"
                                 >
@@ -389,8 +389,7 @@ export default function DetailMaterialAssignment({ courseId, data, type, authorI
                                         {sub.submission_files?.map((file, i) => (
                                             <a
                                                 key={i}
-                                                href={file.file_path}
-                                                download
+                                                href={`${API_BASE}/storage/${file.file_path}`}
                                                 className="flex items-center gap-3 px-4 py-3  bg-white border rounded-xl hover:bg-gray-100 transition"
                                             >
                                                 <FileText size={18} className="text-blue-600" />
