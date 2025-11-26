@@ -10,6 +10,9 @@ use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\AssignmentSubmissionController;
 use App\Http\Controllers\AttendanceSessionController;
 use App\Http\Controllers\AttendanceRecordController;
+use App\Http\Controllers\LectureApprovalController;
+use App\Http\Controllers\AdminLetterController;
+use App\Http\Controllers\LetterController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -18,7 +21,6 @@ Route::get('/', function () {
 
 Route::prefix('api')->group(function() {
     Route::post('/login', [ UserController::class, 'login' ]);
-    Route::post('/register', [ UserController::class, 'register' ])->middleware('auth:sanctum');
     Route::delete('/logout', [ UserController::class, 'logout' ])->middleware('auth:sanctum');
     Route::get('/me', [ UserController::class, 'me' ])->middleware('auth:sanctum');
     Route::get('/user/show/{id}', [ UserController::class, 'show' ])->middleware('auth:sanctum');
@@ -42,6 +44,27 @@ Route::prefix('api')->group(function() {
     // Attendances
     Route::resource('/attendances/sessions', AttendanceSessionController::class);
     Route::resource('/attendances/records', AttendanceRecordController::class);
+
+    //letter
+    Route::middleware(['auth:sanctum', 'role:student'])->group(function () {
+        Route::post('/letters', [LetterController::class, 'store']);
+        Route::get('/letters', [LetterController::class, 'index']);
+        Route::get('/letters/{id}', [LetterController::class, 'show']);
+    });
+
+    Route::middleware(['auth:sanctum', 'role:lecturer'])->group(function () {
+        Route::get('/lecture/approvals', [LectureApprovalController::class, 'index']);
+        Route::put('/lecture/approvals/{id}', [LectureApprovalController::class, 'update']);
+    });
+
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::get('/admin/letters', [AdminLetterController::class, 'index']);
+        Route::get('/admin/letters/{id}', [AdminLetterController::class, 'show']);
+        Route::post('/admin/letters/{id}/status', [AdminLetterController::class, 'updateStatus']);
+        Route::post('/admin/letters/{id}/upload', [AdminLetterController::class, 'uploadResult']);
+    });
+
+    
 });
 
 
