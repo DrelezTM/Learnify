@@ -1,6 +1,6 @@
 # Learnify
 <p align="center">
-  <img alt="@portofolio-v2" style="width: 150px;" src="https://github.com/user-attachments/assets/bc839278-defb-4493-bdcf-dc32599770e7">
+  <img alt="@portofolio-v2" src="https://github.com/user-attachments/assets/a64bdb7a-75ec-45ca-bddc-d51768da34dc">
 </p>
 <div align="center">
   <h3>Learnify</h3>
